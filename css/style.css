@@ -1,0 +1,129 @@
+/* style.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    padding: 0;
+    /* 현재: background-color: #f4f4f4; (연한 회색) */
+
+    /* 옵션 1: item-card와 동일한 연한 하늘색으로 통일 */
+    background-color: #f0f8ff; 
+
+    /* 옵션 2: 깔끔한 흰색으로 변경 (가장 흔함) */
+    /* background-color: #ffffff; */
+
+    color: #333;
+}
+header {
+    background-color: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+h1 {
+    color: #0056b3;
+    border-bottom: 2px solid #0056b3;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+/* 각 단어 카드 스타일 */
+.item-card {
+    /* 현재: background-color: #fff; */
+    background-color: #f0f8ff; /* 아주 연한 하늘색 (AliceBlue) */
+    /* 또는 #f8f8f4; (아주 연한 베이지색) */
+    /* 또는 #f5fffa; (민트 크림색) */
+    /* 또는 #fdfdfd; (거의 흰색에 가까운 부드러운 회색) */
+    
+    border: 1px solid #e0e0e0; /* 배경색에 맞춰 테두리 색상 조정 */
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+}
+
+.item-image {
+    max-width: 150px; /* 화면에서의 이미지 크기 조절 */
+    height: auto;
+    /* float: left; <- Flexbox와 float을 동시에 사용하지 않는 것이 좋음. display: flex에서 정렬되므로 */
+    margin-right: 20px; /* 이미지와 텍스트 사이 간격 */
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.item-text-content {
+    flex-grow: 1; /* Flexbox 사용 시 텍스트 컨텐츠가 남은 공간을 차지하도록 */
+}
+
+/* 단어 + 의미 래퍼 (item-image 옆에 배치됨) */
+.word-meaning-wrapper {
+    /* 이 안의 H2는 여전히 기본 블록 요소로 작동 */
+    margin-bottom: 10px; /* 단어/의미와 문장 사이의 간격 */
+}
+
+.item-word-meaning {
+    font-size: 1.8em;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 0; /* 래퍼에 마진을 주므로 여기는 0 */
+    line-height: 1.2;
+}
+
+.item-word {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.item-meaning {
+    font-style: italic;
+    color: #6c757d;
+}
+
+.item-eng-sentence, .item-kor-sentence {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+.item-eng-sentence {
+    color: #495057;
+}
+
+.item-kor-sentence {
+    color: #6c757d;
+}
+
+/* float 해제 (Flexbox 사용 시 필요 없을 수 있지만, 혹시 모를 상황 대비) */
+.clear-floats {
+    clear: both;
+    margin-bottom: 20px; /* 각 카드 사이 간격 조절 */
+}
+
+/* 화면에서만 보이는 요소 */
+.screen-only {
+    display: block;
+}
+
+/* 인쇄 시에만 보이는 요소 (화면에서는 숨김) */
+.print-only {
+    display: none;
+}
+
+/* footer 스타일 */
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    color: #777;
+    font-size: 0.9em;
+}
