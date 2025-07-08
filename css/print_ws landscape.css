@@ -1,0 +1,212 @@
+@page {
+   size: A4 landscape; /* 기본 페이지 방향을 A4 가로로 설정 */
+    margin: 0.5cm; /* 상하좌우 여백을 1.5cm로 설정. 필요에 따라 더 줄일 수 있습니다 (예: 1cm). */
+   /* ------------- 페이지 머리글(Header) 영역 정의 ------------- */
+    /* top-left: 페이지 좌측 상단 (현재 사용하지 않음) */
+    @top-left {
+        content: ""; 
+    }
+
+    /* top-center: 페이지 중앙 상단 (wkhtmltopdf --header-center 옵션으로 텍스트 전달) */
+    @top-center {
+        content: ""; 
+    }
+
+    /* top-right: 페이지 우측 상단 (모든 페이지에 반복되는 고정 머리글) */
+    @top-right {
+       content: "Words Search  Puzzle 초등 필수 영어단어 800+";
+	   font-size: 1em; /* 폰트 크기 조정 */
+        color: blue; /* 색상 조정 */
+		 border-bottom: 1mm grey !important;
+        vertical-align: bottom; /* 텍스트를 위쪽 경계에 붙도록 (선택 사항) */
+        padding-top: 5px; /* 약간의 패딩 */
+    }
+
+    /* ------------- 페이지 바닥글(Footer) 영역 정의 ------------- */
+    /* bottom-left: 페이지 좌측 하단 (현재 사용하지 않음) */
+    @bottom-left {
+        content: ""; 
+    }
+
+    /* bottom-center: 페이지 중앙 하단 (페이지 번호) */
+    @bottom-center {
+       /* content: "페이지 " counter(page) " / " counter(pages); /* 페이지 번호 */ 
+        font-size: 0.9em; /* 폰트 크기 변경 */
+        color: #333; /* 색상 변경 */
+    }
+
+    /* bottom-right: 페이지 우측 하단 (현재 사용하지 않음) */
+    @bottom-right {
+        content: ""; 
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    color: black;
+    background-color: white;
+    -webkit-print-color-adjust: exact; /* 배경색/글자색 정확히 인쇄 */
+    print-color-adjust: exact;
+}
+
+/* 화면용 헤더 숨기기 */
+.screen-only {
+    display: none !important;
+}
+
+/* 인쇄용 요소 보이기 */
+.print-only {
+    display: block !important;
+}
+
+h1, .puzzle-title {
+    color: black; /* 인쇄 시 검은색 */
+    font-size: 1.8em;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.batch-info {
+    font-size: 0.7em;
+    color: #666;
+    margin-left: 8pt;
+}
+
+.puzzle-container {
+    display: flex;
+    flex-direction: row; /* 인쇄 시 항상 좌우 배치 */
+    flex-wrap: wrap; /* 공간 부족 시 줄바꿈 가능 */
+    gap: 1.5cm; /* 그리드와 단어 목록 섹션 사이 간격 */
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    background-color: transparent;
+    page-break-inside: avoid; /* 컨테이너가 페이지 중간에 잘리지 않도록 */
+}
+
+.word-search-grid {
+    display: grid;
+    /* --grid-cols는 JS에서 설정됩니다. 20x20 그리드를 A4에 맞추기 위해 셀 크기 조정 */
+    grid-template-columns: repeat(var(--grid-cols, 20), 0.8cm); /* 0.8cm * 20 = 16cm */
+    grid-template-rows: repeat(var(--grid-rows, 20), 0.8cm);
+    border: 1px solid #000; /* 인쇄용 테두리 강조 */
+    flex-shrink: 0;
+    flex-basis: auto; /* 고정 크기로 인해 auto */
+    width: auto;
+    height: auto;
+    page-break-inside: avoid; /* 그리드가 페이지 중간에 잘리지 않도록 */
+}
+
+.grid-cell {
+    width: 0.8cm; /* 인쇄 시 셀 크기 (20x20 그리드에 맞춰 0.8cm로 조정) */
+    height: 0.8cm;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 10pt; /* 인쇄 시 글자 크기 (셀 크기에 맞춰 조정) */
+    border: 0.5px solid #aaa; /* 인쇄 시 테두리 */
+    text-transform: uppercase;
+    color: black; /* 인쇄 시 글자색 항상 검정 */
+    background-color: white;
+}
+
+/* 정답 모드일 때 셀 강조 (인쇄용) */
+body.show-answer .grid-cell {
+    background-color: transparent; /* 기본 배경 투명 */
+    color: black; /* 기본 글자색 검정 */
+}
+
+/* 단어 강조 색상 (show-answer 클래스에 따라 인쇄 시 적용) */
+/* 인쇄 시에는 너무 진한 색상 대신 연한 배경색으로 */
+.red { background-color: #ffe0e0 !important; } /* 연한 빨강 */
+.blue { background-color: #e0f2ff !important; } /* 연한 파랑 */
+.green { background-color: #e6ffe6 !important; } /* 연한 초록 */
+.orange { background-color: #fff0e0 !important; } /* 연한 주황 */
+.purple { background-color: #f0e0ff !important; } /* 연한 보라 */
+.brown { background-color: #ffe8d7 !important; } /* 연한 갈색 */
+.teal { background-color: #e0ffff !important; } /* 연한 청록 */
+.maroon { background-color: #ffe0e0 !important; } /* 연한 자주 */
+.navy { background-color: #e0e0ff !important; } /* 연한 남색 */
+.olive { background-color: #f0f5e0 !important; } /* 연한 올리브 */
+/* 인쇄 시 글자는 항상 검정으로 유지 */
+body.show-answer .grid-cell.red,
+body.show-answer .grid-cell.blue,
+body.show-answer .grid-cell.green,
+body.show-answer .grid-cell.orange,
+body.show-answer .grid-cell.purple,
+body.show-answer .grid-cell.brown,
+body.show-answer .grid-cell.teal,
+body.show-answer .grid-cell.maroon,
+body.show-answer .grid-cell.navy,
+body.show-answer .grid-cell.olive {
+    color: black !important;
+}
+
+
+.word-list-section {
+    flex-grow: 1;
+    flex-basis: 7cm; /* 인쇄 시 단어 목록 섹션의 기본 너비 */
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    page-break-inside: avoid;
+}
+
+.word-list-section h3 {
+    color: black;
+    border-bottom: 0.5px solid #eee;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.word-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5pt 15pt; /* 인쇄 시 간격 */
+    columns: 2; /* 2열로 자동 배치 (브라우저 지원 여부 확인 필요) */
+    -webkit-columns: 2;
+    -moz-columns: 2;
+}
+
+.word-item {
+    font-size: 0.9em;
+    margin-bottom: 3pt;
+    display: block; /* 2열 배치 시 줄바꿈 */
+   line-height: 1.2;
+}
+
+.word-text {
+    font-weight: bold;
+    color: black; /* 인쇄 시 항상 검정 */
+    margin-right: 3pt;
+}
+
+/* 정답 모드에서 단어 목록의 단어에 줄 긋기 */
+body.show-answer .word-text {
+  /*  text-decoration: line-through; */
+}
+
+.meaning-text {
+    color: #444; /* 인쇄 시 뜻 글자색 */
+    font-size: 0.8em;
+}
+
+footer {
+    display: none !important; /* @page footer를 사용하므로 HTML footer 숨기기 */
+}
+
+/* 페이지 바닥글/머리글에 추가하는 footer/qr-code-container는 @page 규칙과 중복될 수 있으므로
+   @page 규칙을 사용한다면 HTML 내의 footer를 display:none 처리하는 것이 좋습니다.
+   wkhtmltopdf 등 외부 도구 사용 시 --footer-html / --header-html 옵션으로 별도 HTML 파일을 지정할 수도 있습니다.
+*/
+.footer-message, .qr-code-container {
+    display: none !important;
+}

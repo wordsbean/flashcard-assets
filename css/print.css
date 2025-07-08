@@ -1,0 +1,329 @@
+/* print.css */
+
+/* @page 규칙: 인쇄 용지 자체에 대한 스타일을 정의합니다. */
+@page {
+    size: A4; /* 용지 크기를 A4로 설정 */
+    margin: 1.5cm; /* 상하좌우 여백을 1.5cm로 설정. 필요에 따라 더 줄일 수 있습니다 (예: 1cm). */
+
+    /* ------------- 페이지 머리글(Header) 영역 정의 ------------- */
+    /* top-left: 페이지 좌측 상단 (현재 사용하지 않음) */
+    @top-left {
+        content: ""; 
+    }
+
+    /* top-center: 페이지 중앙 상단 (wkhtmltopdf --header-center 옵션으로 텍스트 전달) */
+    @top-center {
+        content: ""; 
+    }
+
+    /* top-right: 페이지 우측 상단 (모든 페이지에 반복되는 고정 머리글) */
+    @top-right {
+        content: "이미지만 봐도 쉽게 외워지는 초등학교 필수 영어 단어"; /* 고정 텍스트 */
+        font-size: 0.8em; /* 폰트 크기 조정 */
+        color: #555; /* 색상 조정 */
+        vertical-align: bottom; /* 텍스트를 위쪽 경계에 붙도록 (선택 사항) */
+        padding-top: 5px; /* 약간의 패딩 */
+    }
+
+    /* ------------- 페이지 바닥글(Footer) 영역 정의 ------------- */
+    /* bottom-left: 페이지 좌측 하단 (현재 사용하지 않음) */
+    @bottom-left {
+        content: ""; 
+    }
+
+    /* bottom-center: 페이지 중앙 하단 (페이지 번호) */
+    @bottom-center {
+        content: "페이지 " counter(page) " / " counter(pages); /* 페이지 번호 */
+        font-size: 0.9em; /* 폰트 크기 변경 */
+        color: #333; /* 색상 변경 */
+    }
+
+    /* bottom-right: 페이지 우측 하단 (현재 사용하지 않음) */
+    @bottom-right {
+        content: ""; 
+    }
+}
+
+/* ----------------------------------------------------------------------- */
+/* 인쇄 본문의 기본 스타일 조정 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 15pt; /* 인쇄용 기본 폰트 크기 */
+    line-height: 1.4; /* 인쇄용 줄 간격 */
+    margin: 0; /* @page에서 마진을 설정하므로 body 마진은 제거 */
+    padding: 0; /* @page에서 마진을 설정하므로 body 패딩은 제거 */
+    background-color: #ffffff !important; /* 배경색 강제 흰색 (빈 페이지 문제 해결에 도움) */
+    color: #000000 !important; /* 텍스트 색상 강제 검정 */
+    -webkit-print-color-adjust: exact; /* 배경색, 이미지 컬러 인쇄 보장 (wkhtmltopdf 중요 옵션) */
+    print-color-adjust: exact; /* 표준 */
+}
+
+
+/* -------------------------- 인쇄용 헤더 (Day 정보 및 푸른 줄) -------------------------- */
+/* 이 .print-header는 HTML 본문 내에 위치하며, wkhtmltopdf --header-center 옵션과는 별개입니다.
+   HTML 본문의 흐름에 따라 나타나며, 페이지마다 반복되지 않습니다 (각 HTML 파일의 첫 페이지만). */
+.print-header {
+    display: block !important; /* 인쇄 시에만 보이게 */
+    width: 100%; /* 페이지 폭에 맞게 */
+    text-align: center;
+    padding: 0 !important; /* 상단 패딩 제거 */
+    margin-top: 0 !important; /* 맨 위로 붙도록 마진 제거 */
+    margin-bottom: 25px; /* 헤더 내용과 콘텐츠(단어 카드) 사이 간격 조절 */
+    position: relative; /* 줄 배치를 위해 */
+    page-break-after: avoid; /* 헤더 다음 바로 페이지가 나뉘지 않도록 */
+}
+
+.print-header h1 {
+    font-size: 1.8em !important; /* 헤더 제목 폰트 크기 */
+    color: #000 !important; /* 검정색 */
+    margin: 0 !important;
+    padding: 0 !important;
+    border-bottom: none !important; /* 화면용 h1의 border-bottom 제거 */
+}
+
+/* 헤더 아래 연한 블루 스카이 줄 */
+.print-header::after {
+    content: '';
+    display: block;
+    width: calc(100% - 2cm); /* @page margin: 1cm; 이므로 좌우 1cm씩 총 2cm를 뺀 길이로 길게 */
+    height: 4px; /* 줄의 두께 */
+    background-color: #add8e6; /* 연한 블루 스카이 색상 */
+    margin: 15px auto 0 auto; /* 중앙 정렬, 위쪽 여백 */
+    border-radius: 2px; /* 둥근 모서리 (선택 사항) */
+}
+
+
+/* -------------------------- 단어 카드 스타일 -------------------------- */
+/* HTML 본문의 메인 콘텐츠 컨테이너 */
+#contentContainer {
+    margin-top: 0 !important; /* 콘텐츠가 print-header 바로 아래에 붙도록 */
+    /* print-only는 display:none이므로 여기서는 적용 안됨 */
+}
+
+/* 각 단어 카드의 스타일 조정 (한 PDF 페이지에 4개 단어 목표) */
+.item-card {
+    padding: 5px !important;     /* 기존 8px에서 5px로 더 줄임 */
+    margin-bottom: 7px !important; /* 기존 10px에서 7px로 더 줄임 */
+    border: none !important; /* 인쇄 시 카드 테두리 제거 */
+    box-shadow: none !important; /* 인쇄 시 카드 그림자 제거 */
+    page-break-inside: avoid !important; /* 카드 안에서 페이지 분할 피함 */
+    display: flex !important; /* Flexbox 레이아웃 유지 */
+    align-items: flex-start !important; /* 이미지와 텍스트 상단 정렬 */
+}
+
+/* Python 스크립트에서 ITEMS_PER_PRINT_PAGE에 따라 추가하는 클래스 */
+/* 이 클래스를 가진 카드 뒤에는 항상 페이지를 나눔 (마지막 카드는 예외 처리됨) */
+.page-break-after-two-items { /* 클래스 이름은 'two-items'지만, 실제로는 ITEMS_PER_PRINT_PAGE에 따름 */
+    page-break-after: always !important;
+}
+
+/* .item-card의 하단 여백을 제거하여 빈 페이지 방지 (매우 중요) */
+/* HTML 파일 내의 마지막 .item-card 뒤에는 불필요한 마진이 없도록 */
+.item-card:last-of-type {
+    margin-bottom: 0 !important;
+    page-break-after: avoid !important; /* 마지막 카드는 페이지 나누지 않음 */
+}
+
+/* `clear-floats`도 하단 여백을 제거하여 빈 페이지 방지 */
+.clear-floats {
+    clear: both !important;
+    margin-bottom: 0 !important; /* 기존 8px에서 0으로 줄임 */
+}
+.clear-floats:last-of-type { /* HTML 파일의 마지막 clear-floats */
+    margin-bottom: 0 !important;
+    page-break-after: avoid !important;
+}
+
+
+/* 인쇄 시 이미지 스타일 */
+.item-image {
+    max-width: 180px !important; /* 기존 100px에서 90px로 약간 줄임 */
+    height: auto !important;
+    float: none !important; /* Flexbox를 사용하므로 float 해제 */
+    margin-right: 8px !important; /* 기존 10px에서 8px로 줄임 */
+    margin-bottom: 3px !important; /* 기존 5px에서 3px로 줄임 */
+    border-radius: 2px !important;
+    border: 1px solid #ddd !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* 인쇄 시 텍스트 스타일 (폰트 크기 추가 조정) */
+.item-text-content {
+    flex-grow: 1 !important; /* Flexbox 사용 시 남은 공간 채움 */
+}
+
+/* 단어 + 의미 래퍼 (item-image 옆에 배치됨) */
+.word-meaning-wrapper {
+    margin-bottom: 3px !important; /* 기존 5px에서 3px로 줄임 */
+}
+
+.item-word-meaning {
+    font-size: 1.1em !important; /* 기존 1.2em에서 1.1em으로 줄임 */
+    color: #000 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.item-word {
+    font-weight: bold !important;
+    color: #000 !important;
+}
+
+.item-meaning {
+    font-style: italic !important;
+    color: #333 !important;
+}
+
+.item-eng-sentence, .item-kor-sentence {
+    font-size: 1.2em !important; /* 기존 0.8em에서 0.75em으로 줄임 */
+    margin-bottom: 1px !important; /* 기존 2px에서 1px로 줄임 */
+    line-height: 1.15 !important; /* 기존 1.2에서 1.15로 줄임 */
+    color: #000 !important;
+}
+
+
+/* -------------------------- 정적 HTML 페이지 스타일 -------------------------- */
+
+/* 각 정적 페이지(표지, 서문, 목차, 뒷표지)가 항상 새 페이지에서 시작하도록 */
+.cover-page, .intro-section, .toc-section, .closing-page {
+    page-break-before: always; /* 항상 새 페이지에서 시작 */
+    /* 페이지 중앙 정렬 및 전체 페이지 채우기 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 수직 중앙 */
+    align-items: center; /* 수평 중앙 */
+    min-height: 25cm; /* A4 높이에서 상하 여백을 뺀 대략적인 값 */
+    text-align: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: white !important; /* 인쇄 시 배경색 흰색 보장 */
+    box-shadow: none !important; /* 그림자 제거 */
+}
+
+/* 표지 제목/부제목 폰트 크기 조정 (인쇄용) */
+.cover-title-3d { 
+    font-size: 2.5em !important; 
+    text-shadow: none !important; 
+    background-color: transparent !important; 
+    color: #000 !important; 
+}
+.cover-title, .cover-subtitle { 
+    font-size: 2em !important; 
+    text-shadow: none !important;
+    color: #000 !important;
+}
+.author {
+    font-size: 1em !important;
+    color: #555 !important;
+}
+
+
+/* 서문/목차 폰트 크기 및 여백 조정 (인쇄용) */
+.intro-section h2, .toc-section h2 {
+    font-size: 1.8em !important;
+    margin-bottom: 15px !important;
+    color: #000 !important; 
+    border-bottom: 1px solid #ccc !important;
+}
+.intro-section p, .intro-section ul, .toc-list, .closing-message, .contact-info {
+    font-size: 1em !important;
+    line-height: 1.6 !important;
+    max-width: 16cm !important; /* 본문 내용의 최대 너비 제한 (인쇄 영역에 맞게) */
+    color: #000 !important;
+}
+.intro-section ul {
+    text-align: left !important; 
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+.toc-list li {
+    padding: 6px 0 !important;
+    border-bottom: 0.5px dashed #eee !important;
+}
+.toc-list li span:first-child {
+    color: #000 !important;
+}
+.toc-list li span:last-child {
+    color: #555 !important;
+}
+
+/* 서문 이미지 (intro.html) */
+.intro-image {
+    float: left !important; 
+    width: 8cm !important; 
+    height: auto !important;
+    margin-right: 1.5cm !important; 
+    margin-bottom: 0.8cm !important; 
+    border-radius: 4px !important;
+    box-shadow: none !important; 
+    border: 0.5px solid #ddd !important; 
+}
+
+/* 뒷표지 텍스트 */
+.closing-message-3d { 
+    font-size: 2em !important; 
+    text-shadow: none !important; 
+    background-color: transparent !important; 
+    color: #000 !important; 
+}
+.closing-message, .contact-info { 
+    font-size: 1em !important;
+    color: #555 !important;
+    text-shadow: none !important;
+}
+
+
+/* -------------------------- 푸터 (QR 코드) -------------------------- */
+/* footer 자체의 display는 block으로 두되, @page footer 영역에 겹치지 않도록 */
+footer {
+    display: block !important;
+    position: static !important; /* 고정 위치 해제 */
+    bottom: auto !important; /* 고정 위치 해제 */
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.7em !important;
+    color: #666 !important;
+    border-top: none !important;
+    background-color: transparent !important;
+    padding-top: 1cm !important; /* 페이지 하단 QR 코드와의 간격 조절 */
+    page-break-inside: avoid !important; /* 푸터가 페이지 중간에 잘리지 않도록 */
+    margin-top: 1cm !important; /* 콘텐츠와 푸터 사이 간격 */
+}
+
+.footer-message {
+    font-size: 0.7em !important;
+    color: #666 !important;
+    margin-top: 5px !important;
+}
+.qr-code-container {
+    text-align: center !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+}
+.qr-code {
+    width: 40px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+}
+.qr-link {
+    font-size: 0.6em !important;
+    color: #555 !important;
+    text-decoration: none !important;
+}
+.qr-link a {
+    color: #555 !important;
+    text-decoration: none !important;
+}
+
+/* -------------------------- 기타 인쇄 관련 -------------------------- */
+/* 화면에서만 보이는 요소 숨김 규칙 */
+header.screen-only {
+    display: none !important;
+}
+
+/* 모든 그림자 제거 */
+*, *::before, *::after {
+    box-shadow: none !important;
+}

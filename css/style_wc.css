@@ -1,0 +1,255 @@
+/* style_wc.css */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+h1 {
+    color: #0056b3;
+    border-bottom: 2px solid #0056b3;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+h1 .puzzle-batch-number,
+.puzzle-title .puzzle-batch-number {
+    font-size: 0.9em; /* 레벨 텍스트보다 살짝 작게 */
+    color: #666;
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+h1 .puzzle-level,
+.puzzle-title .puzzle-level {
+    color: #0056b3; /* 레벨 텍스트 색상 */
+}
+
+/* 퍼즐 컨테이너: 그리드와 힌트 섹션을 담는 부모 */
+#puzzleContainer {
+    display: flex;
+    flex-wrap: wrap; /* 공간이 부족하면 다음 줄로 넘어감 */
+    gap: 40px; /* 그리드와 힌트 섹션 사이 간격 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: flex-start; /* 상단 정렬 */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 1400px; /* 전체 컨테이너 최대 너비 */
+    margin: 0 auto; /* 중앙 정렬 */
+}
+
+/* 단어 크로스 그리드 섹션 */
+.wordcross-grid {
+    display: grid;
+    /* grid-template-columns/rows are set by JS */
+    border: 1px solid #333;
+    max-width: 600px; /* 화면에서의 그리드 최대 너비 */
+    flex: 1 1 600px; /* flex-grow, flex-shrink, flex-basis: 최소 600px 너비를 확보하고 남은 공간을 채우거나 줄어듦 */
+    min-width: 350px; /* 그리드 최소 너비 */
+    box-sizing: border-box;
+}
+
+/* 그리드 셀 */
+.grid-cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    position: relative;
+    background-color: white;
+}
+
+.black-square {
+    background-color: black;
+    border: 1px solid #000;
+}
+
+.clue-number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 0.6em;
+    color: red;
+    z-index: 1;
+}
+
+.puzzle-letter {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ccc;
+    padding-top: 10px;
+    color: transparent;
+}
+
+.grid-cell .clue-number + .puzzle-letter {
+    color: black;
+}
+
+.black-square .puzzle-letter {
+    border-bottom: none;
+    color: transparent !important;
+}
+
+body.mode-answer .puzzle-letter {
+    color: red;
+}
+
+/* 힌트 섹션 */
+.clues-section {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 350px; /* 힌트 섹션이 기본적으로 350px의 너비를 가지려고 시도 */
+    
+    display: flex;
+    flex-direction: column; /* 기본적으로 상하 배치 */
+    gap: 30px; /* 각 힌트 섹션(ACROSS/DOWN) 사이의 세로 간격 */
+    min-width: 350px; /* 힌트 섹션 최소 너비 */
+    
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fcfcfc;
+    box-sizing: border-box;
+}
+
+/* 힌트 컬럼 (ACROSS 또는 DOWN) */
+.clues-column {
+    flex-grow: 1;
+    min-width: 100%; /* 기본적으로 가로 공간을 모두 차지 */
+}
+
+/* 힌트 섹션 제목 (ACROSS/DOWN) */
+.clues-section h3 {
+    color: #0056b3;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+/* 힌트 목록 */
+.clues-section ol {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+/* 각 힌트 항목 */
+.clues-section li {
+    margin-bottom: 8px;
+    font-size: 0.8em;
+    line-height: 1.3;
+}
+
+/* 힌트 항목 번호 */
+.clue-item-number {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #333;
+}
+
+/* 힌트의 정답 텍스트 (정답 모드에서만 보임) */
+.answer-text {
+    display: none;
+    color: blue;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* 정답 모드일 때 힌트의 정답 텍스트 보이기 */
+body.mode-answer .answer-text {
+    display: inline;
+}
+
+/* 화면에서만 보이는 요소 */
+.screen-only {
+    display: block;
+}
+
+/* 인쇄 시에만 보이는 요소 (screen에서는 숨김) */
+.print-only {
+    display: none;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    color: #777;
+    font-size: 0.9em;
+}
+
+/* 반응형 디자인 */
+/* 태블릿/중간 해상도 화면 - 힌트 섹션이 아직 그리드 옆에 있을 때 */
+@media (max-width: 1024px) {
+    #puzzleContainer {
+        gap: 20px;
+    }
+    .wordcross-grid {
+        min-width: 300px;
+        flex-basis: 50%;
+    }
+    .clues-section {
+        min-width: 280px;
+        flex-basis: 45%;
+        flex-direction: column; /* 계속 상하 배치 유지 */
+    }
+}
+
+/* 모바일/작은 화면 - 힌트 섹션이 그리드 아래로 내려올 때 */
+@media (max-width: 768px) {
+    #puzzleContainer {
+        flex-direction: column; /* 세로로 배치 */
+        gap: 20px;
+        padding: 15px;
+    }
+    .wordcross-grid, .clues-section {
+        max-width: 100%; /* 너비 100% 사용 */
+        flex-basis: auto; /* 유연하게 조절 */
+        min-width: unset; /* 최소 너비 제한 해제 */
+    }
+    .grid-cell {
+        width: 30px; /* 작은 화면에서 셀 크기 줄이기 */
+        height: 30px;
+        font-size: 1em;
+    }
+    /* 힌트 섹션이 그리드 아래로 내려왔을 때: ACROSS/DOWN을 좌우로 펼침 */
+    .clues-section {
+        flex-direction: row; /* 좌우 배치로 변경 */
+        flex-wrap: wrap; /* 내용이 많으면 다음 줄로 넘어갈 수 있도록 */
+        gap: 20px; /* 좌우 컬럼 간격 */
+        justify-content: center; /* 중앙 정렬 */
+    }
+    .clues-column {
+        flex: 1 1 45%; /* 각 컬럼이 최소 45% 너비를 가지도록 (두 개가 나란히 오도록) */
+        min-width: 150px; /* 힌트 컬럼의 최소 너비 설정 */
+    }
+}

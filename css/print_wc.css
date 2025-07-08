@@ -1,0 +1,299 @@
+/* print_wc.css */
+
+@page {
+    size: A4; /* 용지 크기를 A4로 설정 */
+    margin: 0.5cm; /* 상하좌우 여백을 1.5cm로 설정. 필요에 따라 더 줄일 수 있습니다 (예: 1cm). */
+
+    /* ------------- 페이지 머리글(Header) 영역 정의 ------------- */
+    /* top-left: 페이지 좌측 상단 (현재 사용하지 않음) */
+    @top-left {
+        content: ""; 
+    }
+
+    /* top-center: 페이지 중앙 상단 (wkhtmltopdf --header-center 옵션으로 텍스트 전달) */
+    @top-center {
+        content: ""; 
+    }
+
+    /* top-right: 페이지 우측 상단 (모든 페이지에 반복되는 고정 머리글) */
+    @top-right {
+        content: ""; /* 고정 텍스트 */
+        font-size: 0.8em; /* 폰트 크기 조정 */
+        color: blue; /* 색상 조정 */
+        vertical-align: bottom; /* 텍스트를 위쪽 경계에 붙도록 (선택 사항) */
+        padding-top: 5px; /* 약간의 패딩 */
+    }
+
+    /* ------------- 페이지 바닥글(Footer) 영역 정의 ------------- */
+    /* bottom-left: 페이지 좌측 하단 (현재 사용하지 않음) */
+    @bottom-left {
+        content: ""; 
+    }
+
+    /* bottom-center: 페이지 중앙 하단 (페이지 번호) */
+    @bottom-center {
+        /*content: "페이지 " counter(page) " / " counter(pages);  페이지 번호 */ 
+        font-size: 0.9em; /* 폰트 크기 변경 */
+        color: #333; /* 색상 변경 */
+    }
+
+    /* bottom-right: 페이지 우측 하단 (현재 사용하지 않음) */
+    @bottom-right {
+        content: ""; 
+    }
+}
+
+body {
+    font-size: 10pt; 
+    color: black; /* 기본적인 글자색은 검정 */
+    background-color: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* ---------------------------------------------------------------------------------- */
+/* !!! 핵심 수정 부분: 워드크로스 퍼즐 그리드 및 정답 목록의 글자 가시성 제어 !!!    */
+/* ---------------------------------------------------------------------------------- */
+
+/* 1. ACROSS/DOWN 목록의 '정답 텍스트' (answer-text) 숨기기 */
+/* 이 규칙은 .answer-text를 기본적으로 숨깁니다. */
+.answer-text {
+    display: none !important; /* 정답 텍스트를 기본적으로 숨김 */
+}
+
+/* 2. 워드크로스 퍼즐 그리드 내의 모든 글자를 기본적으로 '투명하게' 만듭니다. */
+/* (문제지에서는 답이 되는 글자들을 숨기되, 칸의 구조는 유지합니다.) */
+/* .puzzle-letter 및 .grid-cell 내부의 모든 span/div 글자 포함 */
+.puzzle-letter, 
+.grid-cell > span, 
+.grid-cell > div > span, 
+.grid-cell span 
+{
+    color: transparent !important; /* 글자를 투명하게 만듦 */
+    text-shadow: none !important;  /* 그림자도 없애서 보이지 않게 함 */
+}
+
+/* 3. 문제 번호 (clue-number)는 빨간색으로, 볼드체로 보이도록 설정 */
+.clue-number {
+    color: red !important; /* 문제 번호를 빨간색으로 */
+    font-weight: bold !important; /* 볼드체 유지 */
+}
+
+/* 4. 'clue-number' 바로 뒤에 오는 'puzzle-letter' (각 단어의 첫 글자)만 검정색으로 보이게 합니다. */
+/* 이 규칙은 위에 있는 '투명' 규칙보다 우선하여, 해당 글자만 보이게 합니다. */
+.clue-number + .puzzle-letter, /* puzzle-letter가 div인 경우 */
+.clue-number + span.puzzle-letter, /* puzzle-letter가 span인 경우 (만약 있다면) */
+.clue-number + .grid-cell > span, /* grid-cell 안에 직접 span이 있는 경우 (만약 있다면) */
+.clue-number + .grid-cell > div > span /* grid-cell 안에 div > span인 경우 (만약 있다면) */
+{
+    color: black !important; /* 첫 글자를 검정색으로 (보이게) */
+}
+
+/* ----------------------------------------------------- */
+/* !!! 정답지 (body에 'mode-answer' 클래스 있을 때) 동작 !!! */
+/* ----------------------------------------------------- */
+
+/* 정답 모드일 때 .answer-text를 다시 보이게 함 */
+/* 위에 있는 display:none 규칙을 덮어씁니다. */
+body.mode-answer .answer-text {
+    display: inline !important; /* 정답 모드일 때 답을 다시 보이게 함 */
+    color: blue !important; /* 빨간색으로 변경 */
+    font-weight: bold;
+    margin-left: 8pt;
+}
+
+/* 정답 모드일 때 그리드 내 모든 글자를 빨간색으로 보이게 함 */
+/* 위에 있는 '투명' 규칙을 덮어쓰고, '첫 글자 검정' 규칙도 덮어씁니다. */
+body.mode-answer .puzzle-letter,
+body.mode-answer .clue-number + .puzzle-letter, /* 첫 글자도 빨갛게 */
+body.mode-answer .clue-number + span.puzzle-letter,
+body.mode-answer .clue-number + .grid-cell > span,
+body.mode-answer .clue-number + .grid-cell > div > span
+{
+    color: blue !important; /* 정답 모드일 때 단어 글자를 모두 빨갛게 */
+}
+
+
+/* ----------------------------------------------------- */
+/* !!! 기타 기존 규칙들 (대부분 유지) !!!                 */
+/* ----------------------------------------------------- */
+
+h1 .puzzle-batch-number,
+.puzzle-title .puzzle-batch-number {
+    font-size: 0.9em;
+    color: #333; /* 인쇄 시 잘 보이도록 조금 진하게 */
+    margin-left: 8pt;
+    font-weight: normal;
+}
+
+h1 .puzzle-level,
+.puzzle-title .puzzle-level {
+    color: #000; /* 인쇄 시 검정색 */
+}
+#puzzleContainer {
+    display: block !important; 
+    width: 100% !important; 
+    padding: 0 !important;
+    margin: 0 auto 0.5cm auto !important; 
+    box-shadow: none !important;
+    background-color: transparent !important;
+    page-break-inside: avoid; 
+}
+
+.wordcross-grid {
+    display: grid !important; 
+    border: 0.5px solid #000 !important;
+    width: 14.4cm !important; /* A4 용지에 16x16 셀이 들어가도록 (0.9cm * 16) */
+    height: auto !important; 
+    margin: 0 auto 0.5cm auto !important; 
+    page-break-inside: avoid !important; 
+}
+
+.grid-cell {
+    width: 0.8cm !important; /* 인쇄 시 셀 크기 (14.4cm / 16칸 = 0.9cm) */
+    height: 0.9cm !important; 
+    border: 0.5px solid #aaa !important;
+    font-size: 0.9em !important;
+    background-color: white !important;
+    display: flex !important; 
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important; 
+}
+
+.black-square {
+    background-color: black !important;
+    border: 0.5px solid #000 !important;
+}
+
+/* --- 문 번호 위치 (색상은 위에 .clue-number에서 정의) --- */
+.clue-number {
+    position: absolute !important;
+    top: 0.05cm !important;
+    left: 0.05cm !important;
+    font-size: 0.5em !important;
+    /* color: red !important; <-- 이 부분은 위에서 통합됨 */
+}
+
+/* --- puzzle-letter의 기본적인 스타일 (색상은 위에서 가시성 제어) --- */
+.puzzle-letter {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-transform: uppercase !important;
+    border-bottom: 0.5px solid #ccc !important; 
+    padding-top: 0.2cm !important; 
+    font-size: 1em !important; 
+}
+.black-square .puzzle-letter {
+    border-bottom: none !important; 
+}
+
+
+.clues-section {
+    display: flex !important; 
+    flex-wrap: wrap !important;
+    gap: 1.5cm !important; 
+    margin-top: 0.5cm !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    page-break-before: auto !important; 
+    page-break-inside: avoid !important; 
+}
+
+.clues-column {
+    flex: 1 !important;
+    min-width: 7cm !important; 
+}
+
+.clues-section h3 {
+    color: black !important;
+    border-bottom: 0.5px solid #eee !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 8px !important;
+    font-size: 1.1em !important;
+}
+
+.clues-section ol {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin-top: 0.1cm !important;
+    margin-bottom: 0.2cm !important;
+}
+
+.clues-section li {
+    margin-bottom: 2px !important;
+    font-size: 0.9em !important;
+    line-height: 1.1 !important;
+}
+
+.clue-item-number {
+    font-weight: bold !important;
+    margin-right: 3px !important;
+    color: red !important;
+}
+
+/* --- 화면 전용 요소는 인쇄 시 숨김 --- */
+.screen-only {
+    display: none !important;
+}
+
+/* --- 그림자 없앰 --- */
+*, *::before, *::after {
+    box-shadow: none !important;
+}
+    .clues-root {
+        padding: 0; /* Removed padding */
+        /* border: 1px solid #eee; /* Optional border, removed for minimal space */ */
+        /* background-color: #f9f9f9; /* Optional background, removed for minimal space */ */
+        margin-top: -20px; /* Reduced margin-top for less space, can be 0px */
+        margin-bottom: 0; /* Ensure no bottom margin */
+        border-radius: 0; /* Remove border-radius for cleaner edges if no border */
+    }
+/* --- 푸터 관련 요소들 ( print_wc.css에 원래 있던 것들 ) --- */
+footer {
+    display: block !important; /* 기본적으로는 block 유지 (아예 숨기려면 display:none) */
+    position: static !important; 
+    bottom: auto !important; 
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.7em !important;
+    color: #666 !important;
+    border-top: none !important;
+    background-color: transparent !important;
+    padding-top: 1cm !important; 
+    page-break-inside: avoid !important;
+}
+.footer-message {
+    font-size: 1.0em !important;
+    color: #666 !important;
+    margin-top: 5px !important;
+    text-align: right !important; /* <--- 이 줄을 추가합니다. */
+}
+.qr-code-container {
+    text-align: center !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+	display:none; /* QR코드 컨테이너 숨김 */
+}
+.qr-code {
+    width: 40px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+	display:none; /* QR코드 이미지 숨김 */
+}
+.qr-link {
+    font-size: 0.6em !important;
+    color: #555 !important;
+    text-decoration: none !important;
+	display:none; /* QR링크 숨김 */
+}
+.qr-link a {
+    color: #555 !important;
+    text-decoration: none !important;
+	display:none; /* QR링크 내의 a 태그 숨김 */
+}

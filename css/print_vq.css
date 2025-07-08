@@ -1,0 +1,282 @@
+/* print_vq.css */
+
+/* General Print Styles */
+@page {
+    size: A4 portrait; /* A4 세로 방향 */
+    margin: 0.5cm; /* 페이지 여백을 1.5cm에서 1cm로 줄였습니다. */
+
+    /* 페이지 머리글 */
+    @top-right {
+        content: "이미지만 봐도 쉽게 외워지는 초등학교 필수 영어 단어";
+        font-size: 0.7em; /* 폰트 크기를 더 줄였습니다. */
+        color: #555;
+        vertical-align: bottom;
+        padding-top: 3px; /* 패딩도 줄였습니다. */
+    }
+
+    /* 페이지 바닥글 */
+    @bottom-center {
+        content: "페이지 " counter(page) " / " counter(pages);
+        font-size: 0.8em; /* 폰트 크기를 더 줄였습니다. */
+        color: #333;
+    }
+}
+
+/* HTML 내의 푸터 요소 숨기기 */
+footer { /* 기존 HTML 푸터가 있다면 숨깁니다. */
+    display: none !important;
+}
+
+.footer-message, .qr-code-container {
+    display: none !important;
+}
+
+body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important; /* 인쇄 시에는 높이를 자동으로 조절 */
+    background-color: #fff !important; /* Ensure white background for printing */
+    color: #000 !important; /* Ensure black text for printing */
+    -webkit-print-color-adjust: exact; /* For better color accuracy on print */
+    print-color-adjust: exact; /* Standard property for color accuracy */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; /* 폰트 유지 */
+    box-sizing: border-box !important;
+    overflow: visible !important; /* 인쇄 시 스크롤바 방지 및 모든 내용 표시 */
+}
+
+/* Hide elements not needed in print */
+.top-navigation,
+.pagination-controls,
+.vowelscramble-vowels-pool, /* Hide the interactive vowel pool */
+.speaker-icon, /* Hide speaker icons */
+.quiz-container { /* Hide the 8-word quiz container if you only want the vowel scramble on print */
+    display: none !important;
+}
+
+/* Adjustments for Vowel Scramble Section */
+.vowelscramble-section {
+    width: 100% !important;
+    max-width: none !important; /* Remove max-width for full page width */
+    margin-top: 0 !important;
+    padding: 8mm !important; /* 전체 섹션 패딩을 10mm에서 8mm로 줄였습니다. */
+    border: none !important; /* Remove borders */
+    box-shadow: none !important; /* Remove shadows */
+    background-color: #fff !important;
+}
+
+.vowelscramble-section h2 {
+    color: #34495e !important;
+    text-align: center !important;
+    margin-bottom: 6mm !important; /* 제목 하단 여백을 8mm에서 6mm로 줄였습니다. */
+    font-size: 16pt !important; /* 제목 폰트 크기를 18pt에서 16pt로 줄였습니다. */
+    font-weight: bold !important;
+}
+
+.vowelscramble-puzzle-items-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* A4에서 2열로 배치 */
+    gap: 8mm !important; /* 아이템 간 간격을 10mm에서 8mm로 줄였습니다. */
+    margin-bottom: 4mm !important; /* 하단 여백을 5mm에서 4mm로 줄였습니다. */
+}
+
+/* --- 새로운 HTML 구조에 맞춰 각 아이템 내부 스타일 조정 (핵심) --- */
+.vowelscramble-item {
+	display: flex !important;
+    flex-direction: column !important; /* 전체 아이템은 세로로 쌓이도록 (top-row, middle-row, bottom-row) */
+    align-items: flex-start !important; /* 왼쪽 정렬 */
+    padding: 2mm !important; /* 아이템 내부 패딩 유지 */
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    background-color: #fcfcfc !important;
+    page-break-inside: avoid; /* 페이지 분할 방지 */
+    min-height: auto !important; /* 최소 높이 자동 조절 */
+}
+
+/* 정답 페이지 아이템의 해결 상태 스타일 */
+.vowelscramble-item.vowelscramble-solved {
+    background-color: #e6ffe6 !important;
+    border-color: #99e699 !important;
+}
+
+/* 상단, 중간, 하단 행 (row) 스타일 */
+.vowelscramble-item-top-row,
+.vowelscramble-item-middle-row,
+.vowelscramble-item-bottom-row {
+    width: 100% !important; /* 각 행은 전체 너비 차지 */
+    display: flex !important; /* 내부 요소 정렬을 위해 flex 사용 */
+    align-items: center !important; /* 세로 중앙 정렬 */
+    margin-bottom: 1mm !important; /* 각 행 아래 간격 */
+}
+
+.vowelscramble-item-top-row {
+    justify-content: flex-start !important; /* 왼쪽 정렬 */
+    font-size: 20pt !important;
+    font-weight: bold !important;
+    color: #34495e !important;
+}
+.vowelscramble-item-middle-row {
+    justify-content: center !important; /* 단어 중앙 정렬 */
+    margin-bottom: 2mm !important; /* 단어 아래 간격 */
+}
+.vowelscramble-item-bottom-row {
+    justify-content: space-between !important; /* 이미지와 예문 컨테이너 좌우 정렬 */
+    align-items: flex-start !important; /* 이미지와 예문 상단 정렬 */
+    margin-bottom: 0 !important; /* 마지막 행이므로 하단 간격 없음 */
+    flex-wrap: wrap !important; /* 공간 부족 시 줄바꿈 */
+}
+
+/* 세부 요소 스타일 조정 */
+.vowelscramble-number {
+    font-size: 8pt !important; /* 기존 7pt에서 8pt로 살짝 키움 */
+    font-weight: bold !important;
+    color: #888 !important;
+    margin-right: 2mm !important; /* 번호 옆 의미와의 간격 */
+}
+.vowelscramble-meaning {
+    font-size: 12pt !important; /* 기존 8pt에서 9pt로 살짝 키움 */
+    font-weight: bold !important;
+    color: #4a6572 !important;
+    line-height: 1.1 !important;
+}
+
+.vowelscramble-word-display {
+    gap: 0.6mm !important; /* 글자 박스 간 간격 유지 */
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    display: flex !important; /* flex 속성 유지 */
+    align-items: center !important;
+}
+.vowelscramble-char {
+    width: 9mm !important; /* 박스 크기 유지 */
+    height: 9mm !important; /* 박스 크기 유지 */
+    font-size: 11pt !important; /* 폰트 크기 유지 */
+    font-weight: bold !important;
+    border-width: 0.5px !important;
+    border-radius: 2mm !important;
+    background: #f0f0f0 !important; /* 연한 회색 배경 */
+    color: #333 !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important; /* 연한 테두리 */
+    flex-shrink: 0 !important;
+    display: inline-flex !important; /* flex 속성 유지 */
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* 빈칸 스타일 (문제 페이지에만 해당될 수 있음) */
+.vowelscramble-char.vowelscramble-blank {
+    background: #fff !important;
+    border: 1px dashed #888 !important;
+    color: #000 !important;
+}
+/* 정답이 '채워진' 박스 스타일 (정답 페이지에서 직접 적용되지 않을 수 있음) */
+.vowelscramble-char.correct-fill {
+    background: #e6ffe6 !important;
+    border-color: #99e699 !important;
+    color: #000 !important;
+}
+
+
+/* ★★★ 이미지와 예문 컨테이너 스타일 (bottom-row 내부) ★★★ */
+.vowelscramble-image-container {
+    flex: none !important; /* 축소/확대 안 함 */
+    width: 100% !important; /* 이미지 컨테이너가 40% 너비 차지 */
+    max-width: 30mm !important; /* 최대 이미지 너비 */
+    margin-right: 10mm !important; /* 예문과의 간격 */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-shrink: 0 !important; /* 이미지 컨테이너 축소 방지 */
+}
+.vowelscramble-image {
+    max-width: 100% !important; /* 부모 컨테이너에 맞게 */
+    height: auto !important;
+    border-radius: 2mm !important;
+}
+
+.vowelscramble-examples-container {
+    flex-grow: 1 !important; /* 남은 공간 모두 차지 */
+    display: flex !important;
+    flex-direction: column !important; /* 예문들은 세로로 쌓이도록 */
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    min-width: 50% !important; /* 예문 컨테이너의 최소 너비 (줄바꿈 방지) */
+}
+.vowelscramble-example-en,
+.vowelscramble-example-ko {
+    font-size: 12pt !important;
+    line-height: 1.2 !important;
+    color: #555 !important;
+    margin-bottom: 0.5mm !important; /* 예문 줄 간격 조절 */
+}
+
+/* Page break control */
+.vowelscramble-item {
+    page-break-inside: avoid; /* Avoid breaking an item across pages */
+}
+/* .vowelscramble-puzzle-items-container {
+    page-break-after: always; /* Ensure a page break after the whole puzzle container if desired */
+/* } */
+/* 인쇄 시 버튼류 숨기기 */
+@media print {
+  .pagination-controls,
+  #prevPageBtn,
+  #nextPageBtn,
+  #manualCaptureBtn,
+  #startAutoCaptureBtn,
+  #stopAutoCaptureBtn {
+    display: none !important;
+  }
+}
+
+
+/* Hide screen-only elements on print */
+.screen-only {
+    display: none !important;
+}
+
+/* Ensure no shadows on print */
+*, *::before, *::after {
+    box-shadow: none !important;
+}
+
+footer {
+    display: block !important; 
+    position: static !important; 
+    bottom: auto !important; 
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.7em !important;
+    color: #666 !important;
+    border-top: none !important;
+    background-color: transparent !important;
+    padding-top: 1cm !important; 
+    page-break-inside: avoid !important;
+}
+.footer-message {
+    font-size: 0.7em !important;
+    color: #666 !important;
+    margin-top: 5px !important;
+}
+.qr-code-container {
+    text-align: center !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+}
+.qr-code {
+    width: 40px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+}
+.qr-link {
+    font-size: 0.6em !important;
+    color: #555 !important;
+    text-decoration: none !important;
+}
+.qr-link a {
+    color: #555 !important;
+    text-decoration: none !important;
+}

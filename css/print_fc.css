@@ -1,0 +1,334 @@
+@page {
+   size: A4 landscape; /* 기본 페이지 방향을 A4 가로로 설정 */
+    margin: 0.5cm; /* 상하좌우 여백을 1.5cm로 설정. 필요에 따라 더 줄일 수 있습니다 (예: 1cm). */
+   /* ------------- 페이지 머리글(Header) 영역 정의 ------------- */
+    /* top-left: 페이지 좌측 상단 (현재 사용하지 않음) */
+    @top-left {
+        content: ""; 
+    }
+
+    /* top-center: 페이지 중앙 상단 (wkhtmltopdf --header-center 옵션으로 텍스트 전달) */
+    @top-center {
+        content: ""; 
+    }
+
+    /* top-right: 페이지 우측 상단 (모든 페이지에 반복되는 고정 머리글) */
+    @top-right {
+       content: "플래시 카드로 공부하는 초등영어 단어 800+";
+        font-size: 1em; /* 폰트 크기 조정 */
+        color: blue; /* 색상 조정 */
+		 border-bottom: 1mm grey !important;
+        vertical-align: bottom; /* 텍스트를 위쪽 경계에 붙도록 (선택 사항) */
+        padding-top: 5px; /* 약간의 패딩 */
+    }
+
+    /* ------------- 페이지 바닥글(Footer) 영역 정의 ------------- */
+    /* bottom-left: 페이지 좌측 하단 (현재 사용하지 않음) */
+    @bottom-left {
+        content: ""; 
+    }
+
+    /* bottom-center: 페이지 중앙 하단 (페이지 번호) */
+    @bottom-center {
+     /*   content: "페이지 " counter(page) " / " counter(pages);  페이지 번호 */
+        font-size: 0.9em; /* 폰트 크기 변경 */
+        color: #333; /* 색상 변경 */
+    }
+
+    /* bottom-right: 페이지 우측 하단 (현재 사용하지 않음) */
+    @bottom-right {
+        content: ""; 
+    }
+}
+
+/* --- @media print 블록 시작: 인쇄 시에만 적용되는 Flashcard 스타일 --- */
+@media print {
+    /* 모든 요소에 box-sizing 적용 (패딩과 보더를 너비/높이에 포함) */
+    *, *::before, *::after {
+      box-sizing: border-box !important;
+    }
+
+    /* --- 기본 Body 및 공통 요소 스타일 (화면용 스타일 덮어쓰기) --- */
+    body {
+        margin: 0 !important;
+        background-image: none !important;
+        background-color: #fff !important;
+        color: #000 !important;
+        display: block !important;
+        min-height: auto !important;
+        overflow-y: visible !important;
+        font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+        width: 100% !important;
+        height: auto !important;
+
+        /* 단일 카드를 페이지 중앙에 배치하기 위한 추가 설정 */
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-height: 100vh !important;
+    }
+
+    /* 화면에만 필요한 요소들 숨기기 */
+    .top-navigation,
+    .pagination-controls,
+    .pagination,
+    .vowelscramble-vowels-pool,
+    .speaker-icon,
+    .manual-capture-btn,
+    .start-auto-capture-btn,
+    .stop-auto-capture-btn {
+        display: none !important;
+    }
+    
+    /* --- Flashcard 메인 섹션 컨테이너 스타일 --- */
+    .flashcard-section {
+        width: 100% !important; max-width: none !important;
+        margin: 0 !important;
+        padding: 8mm !important; /* <--- 섹션 패딩 10mm에서 8mm로 다시 줄임 */
+        background-color: #fff !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-height: auto !important; /* min-height: 100vh 대신 auto로 변경 */
+    }
+
+    .flashcard-section h2 { /* 제목 */
+        font-size: 20pt !important;
+        margin-bottom: 8mm !important; /* <--- 제목 하단 마진 12mm에서 8mm로 줄임 */
+        color: #87CEEB !important;
+        text-align: center !important;
+        font-weight: bold !important;
+    }
+
+    /* --- Flashcard 그리드 컨테이너 (이제는 1열 그리드) --- */
+    .flashcard-grid-container {
+        display: block !important;
+        width: auto !important;
+        gap: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-after: avoid; 
+        text-align: center !important;
+    }
+
+    /* --- 개별 플래시 카드 아이템 (.flashcard-item) 스타일 --- */
+    .flashcard-item {
+        display: flex !important;
+        flex-direction: column !important;
+        border: 1px solid #dcdcdc !important;
+        border-radius: 12mm !important;
+        box-shadow: none !important;
+        overflow: hidden !important;
+        background-color: #fcfcfc !important;
+        
+        /* A4 Landscape 페이지의 대부분을 차지하도록 크기 설정 */
+        /* 계산: (유효높이 200mm - 섹션 패딩 16mm - 제목+마진 15mm) = 169mm 남음 */
+        width: 250mm !important;
+        height: 165mm !important; /* <--- 높이를 170mm에서 165mm로 대폭 줄여 여유를 줍니다. */
+        
+        padding: 3mm !important; /* <--- 카드 내부 패딩 4mm에서 3mm로 줄임 */
+        margin: auto !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* 상단 영역 (이미지, 단어, 의미) */
+    .flashcard-top-area {
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: 55% !important; /* 높이 비율 55% 유지 */
+        
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch !important;
+        padding: 2mm !important; /* <--- 패딩 3mm에서 2mm로 줄임 */
+        border-bottom: 0.5px solid #eee !important;
+        background-color: #fcfcfc !important;
+    }
+
+    /* 하단 영역 (예문) */
+    .flashcard-bottom-area {
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: 45% !important; /* 높이 비율 45% 유지 */
+        
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 2mm !important; /* <--- 패딩 3mm에서 2mm로 줄임 */
+        background-color: #fcfcfc !important;
+    }
+
+    /* 상단 좌측: 이미지 컨테이너 (60% 너비) */
+    .flashcard-image-wrapper {
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: 60% !important;
+        width: 60% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 1mm !important; /* <--- 패딩 2mm에서 1mm로 더 줄임 */
+        min-width: 0 !important;
+    }
+
+    .flashcard-image { /* 이미지 자체 */
+        max-width: 80% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+        border-radius: 8mm !important;
+    }
+
+    /* 상단 우측: 단어, 의미 컨테이너 (40% 너비) */
+    .flashcard-word-meaning-content {
+        flex-grow: 0 !important;
+        flex-shrink: 0 !important;
+        flex-basis: 40% !important;
+        width: 40% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 1mm !important; /* <--- 패딩 2mm에서 1mm로 더 줄임 */
+        min-width: 0 !important;
+        text-align: center !important;
+    }
+
+    /* 텍스트 스타일 (폰트 크기 및 줄바꿈) */
+    .flashcard-word {
+        font-size: 26pt !important;
+        font-weight: bold !important;
+        color: #3f51b5 !important;
+        margin: 0 0 2mm 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    .flashcard-meaning {
+        font-size: 19pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        margin: 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+    .flashcard-meaning strong {
+        display: none !important;
+    }
+
+    .flashcard-eng-example {
+        font-size: 25pt !important;
+        color: #3f51b5 !important;
+        margin: 0 0 2mm 0 !important;
+        line-height: 1.4 !important; /* 줄 높이 유지 */
+        text-align: center !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+    .flashcard-kor-example {
+        font-size: 25pt !important;
+        color: #000 !important;
+        margin: 0 0 1mm 0 !important; /* 마진 유지 */
+        line-height: 1.4 !important; /* 줄 높이 유지 */
+        text-align: center !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: break_word !important;
+    }
+    .flashcard-eng-example strong,
+    .flashcard-kor-example strong {
+        display: none !important;
+    }
+
+    .flashcard-day-info {
+        font-size: 8pt !important;
+        color: #888 !important;
+        margin-top: auto !important;
+        padding-top: 1.5mm !important;
+        border-top: 1px dashed #eee !important;
+        width: 100% !important;
+        text-align: right !important;
+    }
+    
+    /* --- 기존의 다른 유형(Vowel Scramble, Crossword 등)에 대한 print 스타일 --- */
+    /* 이 부분은 print_vs.css, print_wc.css 등으로 분리될 예정입니다. */
+    /* 현재는 이 파일에 모두 포함되어 있다고 가정하고 아래 코드를 유지합니다. */
+    /* 만약 다른 print_*.css 파일로 옮겼다면 아래 섹션은 이 파일에서 제거해야 합니다. */
+    
+    /* .vowelscramble-section 에 대한 스타일 */
+    .vowelscramble-section {
+        width: 100% !important; max-width: none !important; margin-top: 0 !important;
+        padding: 8mm !important; border: none !important; box-shadow: none !important; background-color: #fff !important;
+    }
+    .vowelscramble-section h2 { font-size: 16pt !important; margin-bottom: 6mm !important; }
+    .vowelscramble-puzzle-items-container { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8mm !important; margin-bottom: 4mm !important; }
+    .vowelscramble-item {
+        display: flex !important; flex-direction: column !important; align-items: flex-start !important;
+        padding: 4mm !important; border: 1px solid #ddd !important; border-radius: 6px !important;
+        box-shadow: none !important; background-color: #fcfcfc !important;
+        page-break-inside: avoid; min-height: auto !important;
+    }
+    .vowelscramble-item.vowelscramble-solved { background-color: #e6ffe6 !important; border-color: #99e699 !important; }
+    .vowelscramble-item-top-row, .vowelscramble-item-middle-row, .vowelscramble-item-bottom-row {
+        width: 100% !important; display: flex !important; align-items: center !important; margin-bottom: 1mm !important;
+    }
+    .vowelscramble-item-top-row { justify-content: flex-start !important; }
+    .vowelscramble-item-middle-row { justify-content: center !important; margin-bottom: 2mm !important; }
+    .vowelscramble-item-bottom-row {
+        justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 0 !important; flex-wrap: wrap !important;
+    }
+    .vowelscramble-number { font-size: 8pt !important; margin-right: 2mm !important; }
+    .vowelscramble-meaning { font-size: 9pt !important; line-height: 1.1 !important; }
+    .vowelscramble-image-container { width: 35mm !important; height: 35mm !important; margin-right: 4mm !important; }
+    .vowelscramble-image { max-width: 100% !important; max-height: 100% !important; object-fit: contain !important; }
+    .vowelscramble-word-display { gap: 0.6mm !important; margin-bottom: 2mm !important; justify-content: center !important; flex-wrap: wrap !important; }
+    .vowelscramble-char {
+        width: 9mm !important; height: 9mm !important; font-size: 6.5pt !important;
+        border-width: 0.5px !important; border-radius: 2mm !important;
+        background: #f0f0f0 !important; color: #333 !important; box-shadow: none !important; border: 1px solid #ccc !important;
+    }
+    .vowelscramble-char.vowelscramble-blank { background: #fff !important; border: 1px dashed #888 !important; }
+    .vowelscramble-char.correct-fill { background: #e6ffe6 !important; border-color: #99e699 !important; }
+    .vowelscramble-example-en, .vowelscramble-example-ko { font-size: 7.5pt !important; line-height: 1.2 !important; margin-bottom: 0.5mm !important; }
+
+    /* --- Word Cross (크로스워드) 관련 스타일 (이전 논의된 내용) --- */
+    .crossword-grid-section {
+        width: 100% !important; max-width: none !important; margin-top: 0 !important;
+        padding: 15mm !important; border: none !important; box-shadow: none !important; background-color: #fff !important;
+    }
+    .crossword-grid-section h2 { font-size: 16pt !important; margin-bottom: 10mm !important; }
+    .crossword-grid-container {
+        display: flex !important; justify-content: center !important; align-items: flex-start !important;
+        gap: 10mm !important; flex-wrap: wrap !important; width: 100% !important;
+    }
+    .crossword-grid { border: 1px solid #34495e !important; box-shadow: none !important; }
+    .grid-cell {
+        min-width: 8mm !important; min-height: 8mm !important; width: 8mm !important; height: 8mm !important;
+        border: 0.5px solid #ccc !important; font-size: 7pt !important; background-color: #f9f9f9 !important;
+    }
+    .grid-cell.empty { background-color: #eef2f7 !important; border: 0.5px solid #eef2f7 !important; }
+    .grid-cell.correct { background-color: #d4edda !important; border-color: #28a745 !important; }
+    .grid-cell.highlight { background-color: #fff3cd !important; border-color: #ffc107 !important; }
+    .grid-cell .cell-input {
+        width: calc(100% - 1mm) !important; height: calc(100% - 1mm) !important;
+        font-size: 1em !important; color: #333 !important;
+    }
+    .grid-cell .number { font-size: 0.6em !important; top: 1mm !important; left: 1mm !important; }
+    .clues-container {
+        background-color: #fff !important; border: 1px solid #e0e0e0 !important;
+        border-radius: 4mm !important; box-shadow: none !important;
+        padding: 10mm !important; width: 80mm !important; min-width: auto !important;
+    }
+    .clues-container h3 { font-size: 14pt !important; margin-bottom: 8mm !important; }
+    .clues-list li { font-size: 9pt !important; margin-bottom: 3mm !important; cursor: auto !important; }
+    .clues-list li:hover { color: #4a6572 !important; }
+}

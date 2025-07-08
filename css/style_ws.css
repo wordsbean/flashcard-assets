@@ -1,0 +1,195 @@
+/* style_ws.css */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1, .puzzle-title {
+    color: #2c3e50;
+    font-size: 2em;
+    margin: 0;
+}
+
+.batch-info {
+    font-size: 0.7em;
+    color: #7f8c8d;
+    margin-left: 10px;
+}
+
+.puzzle-container {
+    display: flex;
+    flex-wrap: wrap; /* 공간 부족 시 줄바꿈 */
+    gap: 40px; /* 그리드와 단어 목록 섹션 사이 간격 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: flex-start; /* 상단 정렬 */
+    max-width: 1200px; /* 전체 컨테이너 최대 너비 (조정) */
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.word-search-grid {
+    display: grid;
+    /* --grid-cols, --grid-rows는 JS에서 설정됩니다. */
+    grid-template-columns: repeat(var(--grid-cols, 20), 1fr); /* 20x20 그리드에 맞춤 */
+    grid-template-rows: repeat(var(--grid-rows, 20), 1fr);
+    border: 2px solid #34495e;
+    flex-shrink: 0; /* 줄어들지 않도록 */
+    flex-basis: 600px; /* 기본 너비 설정 (30px * 20 = 600px) */
+    max-width: 600px; /* 그리드 최대 너비 (셀 크기 * GRID_SIZE) */
+}
+
+.grid-cell {
+    width: 30px; /* 셀 고정 크기 유지 */
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    border: 1px solid #bdc3c7;
+    text-transform: uppercase;
+    color: #34495e; /* 기본 글자색 */
+}
+
+/* 정답 모드일 때 셀 강조 (기본은 투명) */
+body.show-answer .grid-cell {
+    background-color: transparent; /* 정답 모드에서 기본 배경 투명 */
+    color: #34495e; /* 정답 모드에서 기본 글자색 */
+}
+
+/* 단어 강조 색상 (show-answer 클래스에 따라 적용) */
+.red { background-color: #e74c3c !important; color: white !important; }
+.blue { background-color: #3498db !important; color: white !important; }
+.green { background-color: #2ecc71 !important; color: white !important; }
+.orange { background-color: #f39c12 !important; color: white !important; }
+.purple { background-color: #9b59b6 !important; color: white !important; }
+.brown { background-color: #925c00 !important; color: white !important; }
+.teal { background-color: #008080 !important; color: white !important; }
+.maroon { background-color: #800000 !important; color: white !important; }
+.navy { background-color: #000080 !important; color: white !important; }
+.olive { background-color: #808000 !important; color: white !important; }
+
+
+.word-list-section {
+    flex-grow: 1; /* 남은 공간을 채움 */
+    flex-basis: 300px; /* 최소 너비 */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+.word-list-section h3 {
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.word-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap; /* 단어가 많으면 다음 줄로 넘어가도록 */
+    gap: 10px 20px; /* 세로 간격 10px, 가로 간격 20px */
+}
+
+.word-item {
+    font-size: 1em;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+.word-text {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #555; /* 기본 단어 텍스트 색상 */
+}
+
+body.show-answer .word-text.red,
+body.show-answer .word-text.blue,
+body.show-answer .word-text.green,
+body.show-answer .word-text.orange,
+body.show-answer .word-text.purple,
+body.show-answer .word-text.brown,
+body.show-answer .word-text.teal,
+body.show-answer .word-text.maroon,
+body.show-answer .word-text.navy,
+body.show-answer .word-text.olive {
+    text-decoration: line-through; /* 정답 모드에서 단어에 줄 긋기 */
+    color: inherit !important; /* 원래 색상을 유지하면서 줄 긋기 */
+}
+
+.meaning-text {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* 화면 전용 요소 */
+.screen-only {
+    display: block;
+}
+.print-only {
+    display: none;
+}
+
+/* 푸터 */
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    color: #777;
+    font-size: 0.9em;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .puzzle-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+    .word-search-grid {
+        flex-basis: auto;
+        max-width: 100%; /* 모바일에서 그리드 100% 너비 */
+        width: 100%;
+        /* 셀 크기를 유동적으로 */
+        grid-template-columns: repeat(var(--grid-cols, 20), minmax(0, 1fr));
+        grid-template-rows: repeat(var(--grid-rows, 20), minmax(0, 1fr));
+    }
+    .grid-cell {
+        width: auto; /* flex-basis에 맞게 */
+        height: 25px; /* 모바일에서 셀 높이 줄이기 */
+        font-size: 16px;
+    }
+    .word-list-section {
+        flex-basis: auto;
+        min-width: unset;
+        width: 100%;
+    }
+}

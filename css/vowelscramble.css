@@ -1,0 +1,325 @@
+/* vowelscramble.css */
+
+.vowelscramble-section {
+    width: 90%;
+    max-width: 1000px;
+    margin-top: 30px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.vowelscramble-section h2 {
+    color: #34495e;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.vowelscramble-puzzle-items-container {
+    display: grid;
+    grid-template-columns: 1fr; /* 기본 1열 */
+    gap: 25px; /* 아이템 간 간격 */
+    margin-bottom: 30px;
+}
+
+/* 각 문제 아이템 (단어, 의미, 이미지) */
+.vowelscramble-item {
+    display: flex;
+    /* justify-content: space-between; */ /* 3열 레이아웃을 위해 제거 */
+    align-items: center; /* 세로 중앙 정렬 */
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: all 0.2s ease-in-out;
+}
+
+/* 3열 레이아웃을 위한 Flexbox 컨테이너 (vowelscramble-item 내부) */
+.vowelscramble-item {
+    display: flex;
+    flex-wrap: wrap; /* 작은 화면에서 줄바꿈 허용 */
+    justify-content: space-between; /* 좌/중앙/우 컬럼 간 공간 분배 */
+    align-items: flex-start; /* 상단 정렬 */
+    text-align: left; /* 내부 텍스트 정렬 */
+    padding: 15px;
+}
+
+.vowelscramble-left-col { /* 이미지 + 의미 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 0 0 auto; /* 고정 크기, 축소/확대 안 함 */
+    width: 150px; /* 고정 너비 */
+    margin-right: 20px; /* 오른쪽 컬럼과의 간격 */
+}
+
+.vowelscramble-middle-col { /* 자음과 빈칸 단어 */
+    flex-grow: 1; /* 남은 공간을 최대한 차지 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 세로 중앙 정렬 */
+    align-items: center; /* 가로 중앙 정렬 */
+    min-width: 150px; /* 최소 너비 */
+    margin-right: 20px; /* 오른쪽 컬럼과의 간격 */
+}
+
+.vowelscramble-right-col { /* 영어 예문 */
+    flex: 0 0 auto; /* 고정 크기, 축소/확대 안 함 */
+    width: 200px; /* 고정 너비 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* 왼쪽 정렬 */
+}
+
+.vowelscramble-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.vowelscramble-word-info {
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    align-items: center; /* 가로 중앙 정렬 */
+    margin-bottom: 10px;
+}
+
+.vowelscramble-number {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #888;
+    margin-bottom: 5px; /* 숫자 아래 의미와의 간격 */
+}
+
+.vowelscramble-meaning {
+    font-size: 1.1em;
+    color: #4a6572;
+    font-weight: bold; /* 한글 의미는 보여주는 것이므로 강조 */
+    text-align: center;
+}
+
+/* 단어 표시 영역 (자음과 빈칸) */
+.vowelscramble-word-display {
+    display: flex;
+    gap: 8px; /* 글자(버튼) 사이 간격 */
+    margin-bottom: 15px;
+    flex-wrap: wrap; /* 단어가 길면 줄바꿈 */
+    justify-content: center; /* 글자들을 가운데 정렬 */
+    align-items: center;
+}
+
+/* 각 글자 (자음 또는 빈칸) 스타일 - 3D 버튼 효과 */
+/* !important를 사용하여 다른 스타일보다 우선하도록 강제 */
+.vowelscramble-char {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px !important; /* 각 글자 박스 크기 */
+    height: 45px !important;
+    font-size: 1.8em !important;
+    font-weight: bold !important;
+    color: white !important; /* 기본 글자색 */
+    background: linear-gradient(to bottom, #3498db, #2980b9) !important; /* 파란색 3D 버튼 */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 4px #21618c, 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+    border-radius: 8px !important;
+    user-select: none !important;
+    transition: all 0.1s ease-out !important;
+    flex-shrink: 0; /* 축소 방지 */
+}
+
+/* 빈칸 스타일 */
+.vowelscramble-char.vowelscramble-blank {
+    background: linear-gradient(to bottom, #f39c12, #e67e22) !important; /* 주황색 3D 버튼 */
+    box-shadow: 0 4px #d35400, 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+    cursor: pointer !important; /* 클릭 가능 표시 */
+}
+
+/* 빈칸 채우기 대기 중인 상태 */
+.vowelscramble-blank.waiting-for-fill {
+    background: linear-gradient(to bottom, #5d9cec, #428bca) !important; /* 클릭 대기 중 */
+    box-shadow: 0 4px #337ab7, 0 6px 12px rgba(0,0,0,0.4) !important;
+    transform: translateY(1px) !important;
+}
+
+/* 정답/오답 피드백 */
+.vowelscramble-char.correct-fill {
+    background: linear-gradient(to bottom, #2ecc71, #27ae60) !important; /* 초록색 */
+    box-shadow: 0 4px #1e8449, 0 6px 12px rgba(0,0,0,0.4) !important;
+    color: white !important; /* 글자색 유지 */
+}
+.vowelscramble-char.incorrect-fill {
+    background: linear-gradient(to bottom, #e74c3c, #c0392b) !important; /* 빨간색 */
+    box-shadow: 0 4px #a93226, 0 6px 12px rgba(0,0,0,0.4) !important;
+    color: white !important; /* 글자색 유지 */
+}
+
+/* 이미지 컨테이너 */
+.vowelscramble-image-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.vowelscramble-image {
+    max-width: 120px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 모음 선택지 풀 */
+.vowelscramble-vowels-pool {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #eef2f7;
+    border-top: 1px solid #e0e0e0;
+    border-radius: 0 0 12px 12px; /* 하단만 둥글게 */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.vowelscramble-vowels-pool h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+#vowelPool { /* 모음 버튼들을 담는 div */
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* 버튼 사이 간격 */
+    flex-wrap: wrap; /* 넘치면 줄바꿈 */
+}
+
+/* 모음 버튼 자체 (text-button-3d 클래스 재활용) */
+.vowel-pool-button.text-button-3d { /* 더 높은 우선순위로 강제 */
+    font-size: 2em !important; /* 크게 */
+    padding: 10px 20px !important;
+    background: linear-gradient(to bottom, #9b59b6, #8e44ad) !important; /* 보라색 계열 */
+    box-shadow: 0 5px #6c3483, 0 8px 15px rgba(0, 0, 0, 0.4) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    min-width: 60px !important; /* 더 작게 */
+    color: white !important; /* 글자색 */
+}
+
+.vowel-pool-button.text-button-3d:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 7px #6c3483, 0 10px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+.vowel-pool-button.text-button-3d:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0 3px #6c3483, 0 6px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+.vowel-pool-button.selected-vowel { /* 선택된 모음 버튼 */
+    background: linear-gradient(to bottom, #f1c40f, #f39c12) !important; /* 노란색 강조 */
+    box-shadow: 0 5px #c88100, 0 8px 15px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 정답 페이지 스타일 */
+.vowelscramble-item.vowelscramble-solved {
+    background-color: #d4edda; /* 정답은 항상 연한 초록 배경 */
+    border-color: #2ecc71;
+}
+
+/* 반응형 디자인 */
+@media (min-width: 768px) {
+    .vowelscramble-puzzle-items-container {
+        grid-template-columns: 1fr 1fr; /* 태블릿 이상에서는 2열 */
+    }
+    .vowelscramble-left-col {
+        width: 120px; /* 태블릿에서 이미지 컬럼 너비 조정 */
+    }
+    .vowelscramble-right-col {
+        width: 180px; /* 태블릿에서 예문 컬럼 너비 조정 */
+        font-size: 0.9em;
+    }
+    .vowelscramble-char {
+        width: 40px !important; /* 셀 크기 미세 조정 */
+        height: 40px !important;
+        font-size: 1.6em !important;
+    }
+    .vowel-pool-button {
+        font-size: 1.8em !important;
+        padding: 9px 18px !important;
+        min-width: 55px !important;
+    }
+}
+@media (max-width: 767px) {
+    .vowelscramble-item {
+        flex-direction: column; /* 모바일에서는 세로로 쌓기 */
+        align-items: center;
+        text-align: center;
+    }
+    .vowelscramble-left-col,
+    .vowelscramble-middle-col,
+    .vowelscramble-right-col {
+        width: 100%; /* 각 컬럼이 전체 너비 차지 */
+        margin-right: 0;
+        margin-bottom: 15px; /* 세로 간격 추가 */
+    }
+    .vowelscramble-left-col, .vowelscramble-right-col {
+        align-items: center; /* 중앙 정렬 */
+    }
+    .vowelscramble-word-info {
+        flex-direction: row; /* 숫자-의미를 가로로 */
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .vowelscramble-number {
+        margin-right: 10px;
+        margin-bottom: 0;
+    }
+    .vowelscramble-meaning {
+        font-size: 1em;
+    }
+    .vowelscramble-char {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 1.4em !important;
+    }
+    .vowel-pool-button {
+        font-size: 1.5em !important;
+        padding: 8px 15px !important;
+        min-width: 50px !important;
+    }
+    .vowelscramble-image {
+        max-width: 100px;
+    }
+    .vowelscramble-example-en {
+        text-align: center;
+        font-size: 0.9em;
+    }
+}
+@media (max-width: 480px) {
+    .vowelscramble-char {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1.2em !important;
+    }
+    .vowel-pool-button {
+        font-size: 1.2em !important;
+        padding: 6px 12px !important;
+        min-width: 40px !important;
+    }
+    .vowelscramble-image {
+        max-width: 80px;
+    }
+    .vowelscramble-number, .vowelscramble-meaning {
+        font-size: 0.9em;
+    }
+    .vowelscramble-example-en {
+        font-size: 0.8em;
+    }
+}
