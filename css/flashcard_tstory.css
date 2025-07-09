@@ -1,0 +1,320 @@
+/*-----------------------------------------------
+Flashcard Specific Styles (게시물 내부의 플래시 카드 레이아웃)
+- 이 파일은 Tistory 스킨의 CSS 섹션이 아닌, GitHub Pages에 업로드되어
+- Tistory 스킨 HTML의 <head>에서 <link> 태그로 참조되어야 합니다.
+-----------------------------------------------*/
+/* 모든 요소에 box-sizing 적용 (패딩과 보더를 너비/높이에 포함) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 상단 내비게이션 바 컨테이너 (버튼들을 담는 부모) */
+.top-navigation {
+    width: 100%;
+    background-color: #34495e; /* 다크 블루-그레이 */
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; /* 버튼들을 양쪽 끝으로 밀어내고 중앙은 자동으로 */
+    align-items: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2); 
+    flex-wrap: nowrap; /* 핵심: 버튼들이 절대 줄바꿈되지 않고 한 줄에 유지되도록 강제 */
+    gap: 20px; /* 버튼 사이 간격 */
+    box-sizing: border-box;
+    min-height: 70px;
+    overflow-x: auto; /* 만약 버튼이 너무 많아서 화면 넘치면 가로 스크롤 가능 */
+}
+
+/* 3D Button Style for Header Elements */
+.text-button-3d {
+    display: inline-flex; /* 텍스트 중앙 정렬 */
+    justify-content: center;
+    align-items: center;
+    font-size: 18px; /* 워드루트에 맞게 조절된 크기 */
+    font-weight: bold;
+    color: white;
+    padding: 10px 20px; /* 워드루트에 맞게 조절된 패딩 */
+    background: linear-gradient(to bottom, #2ecc71, #27ae60);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 5px #1e8449, 0 8px 15px rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    cursor: pointer; /* 버튼이므로 클릭 가능 */
+    user-select: none;
+    min-width: 100px; /* 워드루트에 맞게 조절된 크기 */
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
+}
+/* 버튼 눌리는 효과 */
+.text-button-3d:active {
+    transform: translateY(3px);
+    box-shadow: 0 0px #1e8449, 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Specific button colors/gradients */
+.text-button-3d.day-info { /* 이제 theme 표시 */
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    box-shadow: 0 5px #21618c, 0 8px 15px rgba(0, 0, 0, 0.4);
+    cursor: default; /* 텍스트 표시용은 클릭 불가 */
+}
+.text-button-3d.theme-info { /* 이제 단어 목록 버튼 */
+    background: linear-gradient(to bottom, #e67e22, #d35400);
+    box-shadow: 0 5px #a04000, 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+.text-button-3d.level-info { /* 이제 검색 버튼 */
+    background: linear-gradient(to bottom, #9b59b6, #8e44ad);
+    box-shadow: 0 5px #6c3483, 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Flashcard Main layout and section */
+.main-layout-quiz { 
+    max-width: 1000px; /* 워드루트와 동일하게 조절 */
+    width: 100%; 
+    margin: 20px auto; 
+    padding: 0 20px; 
+}
+
+.flashcard-section {
+    max-width: 100%; 
+    margin: 30px auto; 
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 30px; /* 워드루트와 동일하게 조절 */
+    text-align: center;
+    overflow: hidden;
+    min-height: 400px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 워드루트와 동일하게 조절 */
+}
+
+.flashcard-section h2 {
+    color: #34495e;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Flashcard content layout */
+.flashcard-grid-container { display: block; margin-bottom: 20px; }
+.flashcard-item { border: none; box-shadow: none; background-color: transparent; min-height: auto; padding: 0; }
+.flashcard-top-area {
+    display: flex; flex-direction: row; 
+    align-items: stretch; padding: 0;
+    border-bottom: 1px solid #eee; 
+    background-color: #fcfcfc; text-align: center;
+}
+/* 이미지 영역은 유지 */
+.flashcard-image-wrapper {
+    flex-grow: 0; flex-shrink: 0; flex-basis: 50%;
+    width: 50%; display: flex; justify-content: center; align-items: center;
+    padding: 10px; min-width: 0;
+}
+.flashcard-image { max-width: 70%; max-height: 100%; object-fit: contain; border-radius: 5px; }
+
+.flashcard-word-meaning-content {
+    flex-grow: 1; flex-shrink: 0; flex-basis: 50%; width: 50%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 10px; min-width: 0; text-align: center;
+}
+
+.flashcard-word { /* word */
+    font-size: 2.8em; font-weight: bold; color: #3f51b5; margin: 0 0 8px 0;
+    text-align: center; width: 100%; white-space: normal; word-break: break-word;
+    position: relative; /* 스피커 아이콘 위치 조정을 위해 */
+}
+.flashcard-meaning { /* meaning */
+    font-size: 1.5em; font-weight: bold; color: #555; margin: 0; text-align: center;
+    width: 100%; white-space: normal; word-break: break-word;
+}
+/* 기존 의미: 등 텍스트 숨김 */
+.flashcard-meaning strong { display: none; }
+
+.flashcard-bottom-area {
+    flex-grow: 1; flex-shrink: 0; flex-basis: auto;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 15px; background-color: #fcfcfc;
+}
+.flashcard-eng-example, .flashcard-kor-example {
+    font-size: 1.1em; color: #3f51b5; margin: 0 0 5px 0; line-height: 1.4;
+    text-align: center; width: 100%; white-space: normal; word-break: break-word;
+}
+.flashcard-kor-example { color: #555; }
+/* 기존 영어 예문: 등 텍스트 숨김 */
+.flashcard-eng-example strong, .flashcard-kor-example strong { display: none; }
+
+.flashcard-day-info { display: none; } /* Day 정보는 top-navigation으로 이동했으므로 숨김 */
+
+
+/* Speakable elements and speaker icon */
+.speakable { cursor: pointer; position: relative; } /* display: inline-block 제거 */
+/* 메인 단어 옆에만 스피커 아이콘 */
+#flashcardWord.speakable::after { /* id를 명시하여 이 요소에만 아이콘 */
+    font-family: "Font Awesome 5 Free"; font-weight: 900; content: "\f028";
+    position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+    color: #4CAF50; font-size: 0.8em;
+}
+/* 다른 speakable 요소들에는 아이콘 숨김 */
+.flashcard-meaning.speakable::after,
+.flashcard-eng-example.speakable::after,
+.flashcard-kor-example.speakable::after {
+    display: none;
+}
+
+
+/* Pagination controls */
+.pagination-controls {
+    display: flex; justify-content: center; align-items: center; gap: 15px;
+    margin-top: 30px; padding: 15px 0; border-top: 1px solid #eee;
+    background-color: #f8f8f8; flex-wrap: wrap;
+}
+.nav-button {
+    background-color: #4CAF50; color: white; padding: 10px 20px;
+    border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+.nav-button:hover { background-color: #45a049; }
+.nav-button:active { transform: translateY(1px); }
+.nav-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+.page-info { font-weight: bold; color: #333; font-size: 1.1em; }
+
+
+/* Highlight style for example words */
+.highlight {
+    color: #d35400; /* 주황색 계열의 폰트 색상 */
+    font-weight: bold;
+    border-radius: 3px;
+}
+
+
+/* Upcoming Words Section */
+.upcoming-words-section {
+    margin-top: 40px; padding: 25px; background-color: #e8f5e9;
+    border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.upcoming-words-section h3 {
+    font-size: 1.5em; color: #2e7d32; border-bottom: 2px solid #a5d6a7; padding-bottom: 10px; margin-bottom: 15px;
+}
+.upcoming-words-intro {
+    font-size: 1.1em; color: #424242; margin-bottom: 15px; line-height: 1.5;
+}
+.upcoming-words-list-container {
+    max-height: 200px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.upcoming-words-list-container.expanded {
+    max-height: 1000px;
+}
+.upcoming-words-list {
+    list-style-type: decimal;
+    padding-left: 25px; margin: 0;
+}
+.upcoming-words-list li {
+    margin-bottom: 8px; font-size: 1.05em; color: #555;
+    cursor: pointer; transition: color 0.2s ease-in-out;
+}
+.upcoming-words-list li:hover { color: #007bff; }
+.toggle-upcoming-words-btn {
+    background-color: #607d8b;
+    color: white; padding: 8px 15px; border: none; border-radius: 5px;
+    font-size: 0.9em; cursor: pointer; margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+.toggle-upcoming-words-btn:hover { background-color: #455a64; }
+
+
+/* Modal Styles */
+.modal-overlay {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center;
+}
+.modal-content {
+    background-color: #fefefe; margin: auto; padding: 20px;
+    border: 1px solid #888; border-radius: 10px;
+    width: 90%; max-width: 900px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; display: flex; flex-direction: column; max-height: 90vh;
+}
+.modal-close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+.modal-close-btn:hover, .modal-close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+
+.modal-header { margin-bottom: 15px; text-align: center; }
+.modal-header h3 { margin: 0; font-size: 1.8em; color: #333; }
+#modalSearchInput {
+    width: calc(100% - 20px); padding: 10px; margin-top: 10px; margin-bottom: 10px;
+    border: 1px solid #ddd; border-radius: 5px; font-size: 1.1em;
+    display: block; margin-left: auto; margin-right: auto;
+}
+.modal-body { flex-grow: 1; overflow-y: auto; }
+
+/* Modal Grid Styles */
+.modal-grid-container { display: flex; flex-direction: column; }
+.modal-grid-header {
+    display: grid; grid-template-columns: 1.5fr 2fr 2fr 2fr;
+    font-weight: bold; background-color: #e9ecef; padding: 10px;
+    border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 1;
+    text-align: left;
+}
+.modal-grid-body { /* Grid rows container */ }
+
+.modal-grid-row {
+    display: grid; grid-template-columns: 1.5fr 2fr 2fr 2fr;
+    padding: 8px 10px; border-bottom: 1px dashed #eee;
+    cursor: pointer; text-align: left;
+}
+.modal-grid-row:hover { background-color: #e0f7fa; } /* Light sky blue on hover */
+
+.modal-grid-row span, .modal-grid-header span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 5px; }
+
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .main-wrapper { max-width: 95%; gap: 15px; }
+    .main-content, .sidebar { min-width: unset; }
+}
+@media (max-width: 768px) {
+    .main-wrapper { flex-direction: column; padding: 0 10px; }
+    .main-content, .sidebar { margin-right: 0; width: 100%; }
+    .main-layout-quiz { max-width: 100%; padding: 0 10px; }
+    .flashcard-section { padding: 15px; min-height: auto; }
+    .flashcard-top-area { flex-direction: column; align-items: center; }
+    .flashcard-image-wrapper { width: 80%; margin-bottom: 15px; }
+    .flashcard-word-meaning-content { width: 100%; }
+
+    .flashcard-word { font-size: 2.2em; }
+    .flashcard-meaning { font-size: 1.2em; }
+    .flashcard-eng-example, .flashcard-kor-example { font-size: 1em; }
+
+    .modal-content { width: 95%; padding: 15px; }
+    .modal-grid-header, .modal-grid-row { grid-template-columns: 1fr 1fr; font-size: 0.9em; }
+    .modal-grid-header .grid-col-meaning, .modal-grid-row .grid-col-meaning { display: none; }
+    .modal-grid-header .grid-col-example-meaning, .modal-grid-row .grid-col-example-meaning { display: none; }
+}
+@media (max-width: 480px) {
+    .flashcard-word { font-size: 2em; }
+    .flashcard-meaning { font-size: 1.1em; }
+    .flashcard-eng-example, .flashcard-kor-example { font-size: 0.9em; }
+
+    .modal-grid-header, .modal-grid-row { grid-template-columns: 1fr; }
+    .modal-grid-header .grid-col-example, .modal-grid-row .grid-col-example { display: none; }
+}
+
+
+/* Print CSS */
+@media print {
+    body { background-color: #fff; }
+    .top-navigation, .pagination-controls, .modal-overlay, .speakable::after { display: none !important; }
+    .flashcard-section h2 { page-break-before: always; }
+    .main-layout-quiz { margin: 0; padding: 0; max-width: none; }
+    .flashcard-section { border: none; box-shadow: none; padding: 10mm; }
+    .flashcard-image-wrapper { display: block; width: 100mm; float: left; margin-right: 10mm; }
+    .flashcard-image { max-width: 100%; height: auto; }
+    .flashcard-word-meaning-content { width: auto; flex-basis: auto; }
+    .flashcard-word { font-size: 20pt; }
+    .flashcard-meaning { font-size: 14pt; }
+    .flashcard-eng-example, .flashcard-kor-example { font-size: 12pt; }
+    .upcoming-words-section { display: none; }
+}
