@@ -269,6 +269,47 @@ Flashcard Specific Styles (게시물 내부의 플래시 카드 레이아웃)
 
 .modal-grid-row span, .modal-grid-header span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 5px; }
 
+/* Social share button styles */
+.social-share-controls {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.share-button {
+    background-color: #4CAF50; /* 기본 색상 */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-button:hover {
+    opacity: 0.9;
+}
+
+.share-button i {
+    margin-right: 8px;
+}
+
+/* 각 소셜 미디어별 색상 */
+#shareFacebook { background-color: #3b5998; }
+#shareTwitter { background-color: #1da1f2; }
+#shareKakaoTalk { background-color: #FEE500; color: #3C1E1E; } /* 카카오톡은 글씨색이 어두워야 잘 보임 */
+#shareNaverBlog { background-color: #03c75a; }
+
+/* Font Awesome 아이콘을 위한 기본 패밀리 설정 */
+.fab, .fas { font-family: "Font Awesome 5 Brands", "Font Awesome 5 Free"; }
 
 /* Responsive */
 @media (max-width: 1024px) {
