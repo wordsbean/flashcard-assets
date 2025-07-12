@@ -1,11 +1,26 @@
 // main_quiz.js
 
 // GitHub Pages URL의 기본 경로 (당신의 계정명과 저장소명으로 변경하세요!)
-const GITHUB_PAGES_BASE_URL = "https://wordsbean.github.io/flashcard-assets/data/flashcard_data.json";
+const GITHUB_PAGES_BASE_URL = "https://[계정명].github.io/[저장소명]/";
 // 예: const GITHUB_PAGES_BASE_URL = "https://wordsbean.github.io/flashcard-assets/";
 
 // 퀴즈 데이터 변수 (초기에는 비어있음, loadQuizData()에서 채워짐)
 let quizAllWordsData = []; 
+
+// UI 요소 접근을 위한 전역 변수들 선언 (initializeQuiz()에서 할당됨)
+let daySelector, prevDayButton, nextDayButton, currentDayDisplay, quizProblemsArea, submitQuizButton, newQuizButton, startQuizButton;
+let scoreReportModal, scorecardGrid, summaryCorrect, summaryIncorrect;
+let allDays = []; // 모든 Day 번호를 저장할 배열
+let currentDay = null; // 현재 선택된 Day
+
+// 퀴즈 세션 상태 변수
+let currentQuizProblems = []; 
+let userAnswers = {}; 
+let currentQuizSessionScore = { correct: 0, total: 0 };
+
+// localStorage에서 마스터한 단어 로드 (initializeQuiz() 내에서 초기화)
+let masteredWords = []; 
+
 
 // ----------------------------------------------------------------
 // 음성 합성 기능 (SpeechSynthesis API) 및 MP3 재생 기능
@@ -86,8 +101,6 @@ function shuffleArray(array) {
 }
 
 // --- localStorage 관련 함수 ---
-let masteredWords = []; // 로드 후 이곳에 할당
-
 window.markWordAsMastered = (wordToMark) => {
     const upperCaseWord = wordToMark.toUpperCase();
     const todayDate = getCurrentDateYYYYMMDD();
@@ -114,7 +127,6 @@ window.updateProgressDisplay = () => {
     document.getElementById('learned-overall-words').textContent = learnedOverallWords;
     document.getElementById('overall-progress-percentage').textContent = overallProgressPercentage.toFixed(1);
 
-    // currentDay가 아직 설정되지 않았다면 기본값 (예: 첫 번째 Day)을 사용
     const wordsForCurrentDay = quizAllWordsData.filter(wordData => parseInt(wordData.day) === parseInt(currentDay || (allDays.length > 0 ? allDays[0] : 1)));
     const totalWordsForDay = wordsForCurrentDay.length;
     const learnedWordsForDay = wordsForCurrentDay.filter(wordData =>
@@ -253,7 +265,7 @@ function createKoreanToEnglishQuizItem(wordData, questionNumber, allWordsForCurr
     let options = [correctEnglishWord, ...distractors];
     options = shuffleArray(options);
 
-    const quizItemDiv = document.createElement('div');
+    const quizItemDiv = document.createElement('div'); // *** 이 부분 수정됨 ***
     quizItemDiv.className = 'quiz-item';
     quizItemDiv.setAttribute('data-question-type', 'kor-to-eng');
     quizItemDiv.setAttribute('data-correct-answer', correctEnglishWord);
@@ -555,7 +567,7 @@ function createListeningQuizItem(wordData, questionNumber) {
         <div class="quiz-question-content-wrapper">
             ${imageUrl ? `<img src="${GITHUB_PAGES_BASE_URL + imageUrl}" alt="${correctEnglishWord}" class="quiz-image">` : ''}
             <div class="quiz-question-text">
-                의미: <span class="meaning-to-guess">${koreanMeaning}</span>
+                이미지: <span class="meaning-to-guess">${koreanMeaning}</span>
                 <button class="listen-button" onclick="speakText('${koreanMeaning}', 'ko-KR')">🔊</button>
                 ${wordData.word_kk_audio_url ? `<button class="listen-button" onclick="playMp3Audio('${wordData.word_kk_audio_url}')">🎧</button>` : ''}
             </div>
@@ -593,16 +605,11 @@ function createListeningQuizItem(wordData, questionNumber) {
 // ----------------------------------------------------------------
 // 퀴즈 문제 생성 및 표시 로직 (전체 풀에서 20문제 출제)
 // ----------------------------------------------------------------
-//let currentQuizProblems = []; // 주석 처리된 부분들은 이미 상단에서 전역 스코프 변수로 선언되어 있습니다.
-//let userAnswers = {};
-//let currentQuizSessionScore = { correct: 0, total: 0 };
-
-
 function generateAndDisplayQuiz() {
     quizProblemsArea.innerHTML = '';
     submitQuizButton.style.display = 'inline-block';
     newQuizButton.style.display = 'none';
-    startQuizButton.style.display = 'none';
+    // startQuizButton.style.display = 'inline-block'; // initializeQuiz에서 제어 (이미 제어됨)
 
     const allUnmasteredWords = quizAllWordsData.filter(wordData =>
         !masteredWords.some(item => item.word === wordData.word.toUpperCase())
@@ -781,7 +788,7 @@ submitQuizButton.addEventListener('click', () => {
     });
 
     const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-    document.getElementById('current-score').textContent = `0/${currentQuizSessionScore.total}`; // Reset or update score display
+    document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
 
     if (hasUnansweredQuestions) {
         alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
@@ -913,14 +920,8 @@ window.hideScoreReportModal = () => {
 };
 
 
-// --- 퀴즈 초기화 및 UI 요소 접근을 위한 전역 변수들 선언 (DOMContentLoaded 스코프 내에서) ---
-let daySelector, prevDayButton, nextDayButton, currentDayDisplay, quizProblemsArea, submitQuizButton, newQuizButton, startQuizButton;
-let scoreReportModal, scorecardGrid, summaryCorrect, summaryIncorrect;
-let allDays = [];
-let currentDay = null;
-let currentQuizProblems = [];
-let userAnswers = {};
-let currentQuizSessionScore = { correct: 0, total: 0 };
+// --- 퀴즈 초기화 및 UI 요소 접근을 위한 전역 변수들 선언 (initializeQuiz()에서 할당됨) ---
+// 이 변수들은 이미 파일 상단에 전역 변수로 선언되어 있으므로, 여기서는 할당만 진행합니다.
 
 
 // --- 퀴즈 초기화 함수 (JSON 데이터 로드 후 호출됨) ---
@@ -1066,30 +1067,30 @@ function initializeQuiz() {
                     problem.result = 'incorrect';
                 }
             }
-        });
-
-        const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-        document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
-
-        if (hasUnansweredQuestions) {
-            alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
-            submitQuizButton.style.display = 'inline-block';
-            newQuizButton.style.display = 'none';
-        } else {
-            submitQuizButton.style.display = 'none';
-            newQuizButton.style.display = 'inline-block';
-
-            if (currentQuizSessionScore.total > 0) {
-                const scorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-                if (scorePercentage >= 80) {
-                    fanfareAudio.currentTime = 0;
-                    fanfareAudio.play().catch(e => console.error("Fanfare audio playback failed:", e));
-                }
-            }
-            showScoreReportModal();
         }
-        updateProgressDisplay();
-    });
+    );
+
+    const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
+    document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
+
+    if (hasUnansweredQuestions) {
+        alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
+        submitQuizButton.style.display = 'inline-block';
+        newQuizButton.style.display = 'none';
+    } else {
+        submitQuizButton.style.display = 'none';
+        newQuizButton.style.display = 'inline-block';
+
+        if (currentQuizSessionScore.total > 0) {
+            const scorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
+            if (scorePercentage >= 80) {
+                fanfareAudio.currentTime = 0;
+                fanfareAudio.play().catch(e => console.error("Fanfare audio playback failed:", e));
+            }
+        }
+        showScoreReportModal();
+    }
+    updateProgressDisplay();
 }
 
 
@@ -1165,7 +1166,7 @@ function generateAndDisplayStudyView(dayToDisplay) {
     quizProblemsArea.innerHTML = '<p class="loading-message">단어 학습 목록을 불러오는 중...</p>';
     submitQuizButton.style.display = 'none';
     newQuizButton.style.display = 'none';
-    // startQuizButton.style.display = 'inline-block'; // initializeQuiz에서 제어
+    // startQuizButton.style.display = 'inline-block'; // initializeQuiz에서 제어 (이미 제어됨)
 
     const wordsForThisDay = quizAllWordsData.filter(wordData => parseInt(wordData.day) === parseInt(dayToDisplay));
     const wordsToStudy = wordsForThisDay.filter(wordData =>
