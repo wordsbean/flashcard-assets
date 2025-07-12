@@ -1,0 +1,137 @@
+/* common.css */
+body { font-family: 'Arial', font-size:1.1em; sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; line-height: 1.6; }
+header { background-color: #4CAF50; color: white; padding: 1em; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+h1 { margin: 0; font-size: 2em; }
+main { padding: 20px; max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+footer { text-align: center; padding: 1em; color: #777; font-size: 0.8em; }
+.action-button {
+    background-color: #007bff; color: white; border: none; padding: 10px 15px;
+    border-radius: 5px; cursor: pointer; font-size: 1em; margin: 5px;
+    box-shadow: 0 3px 0 0 #0056b3; transition: all 0.1s ease-out;
+}
+.action-button:hover { transform: translateY(-2px); box-shadow: 0 5px 0 0 #0056b3; }
+.action-button:active { transform: translateY(1px); box-shadow: 0 1px 0 0 #0056b3; }
+.progress-section { margin-top: 10px; font-size: 1.3em; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;}
+.progress-section p { margin: 0; }
+#quiz-problems-area { margin-top: 20px; }
+.loading-message { text-align: center; padding: 50px; font-size: 1.2em; color: #666; }
+.quiz-navigation { text-align: center; margin-top: 30px; }
+.day-selection-controls { text-align: center; margin-bottom: 20px; }
+#day-selector { padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em; }
+
+/* 모달 컨테이너 (기본적으로 숨김) */
+.modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed; /* 페이지 위에 고정 */
+    z-index: 1000; /* 다른 요소보다 위에 표시 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 전체 너비 */
+    height: 100%; /* 전체 높이 */
+    overflow: auto; /* 내용이 넘칠 경우 스크롤 허용 */
+    background-color: rgba(0,0,0,0.7); /* 반투명 검정색 배경 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+}
+
+/* 모달이 활성화될 때 */
+.modal.show-modal {
+    display: flex; /* flex로 변경하여 중앙 정렬 활성화 */
+}
+
+/* 모달 내용 박스 */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* flex 없이도 중앙 정렬에 도움 */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%; /* 모달 너비 */
+    max-width: 600px; /* 최대 너비 */
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* 그림자 효과 */
+    position: relative; /* 닫기 버튼 배치를 위해 */
+    text-align: center;
+}
+
+.modal-content h2 {
+    color: #4CAF50;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+/* 모달 닫기 버튼 */
+.close-button {
+    color: #aaa;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+/* 성적표 그리드 */
+#scorecard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); /* 반응형 그리드, 최소 45px 너비 */
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+/* 성적표 각 문제 아이템 */
+.scorecard-item {
+    width: 45px; /* 각 아이템의 고정 너비 */
+    height: 45px; /* 각 아이템의 고정 높이 */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* 둥근 모서리 */
+    display: flex;
+    flex-direction: column; /* 번호와 O/X를 세로로 배치 */
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1em;
+    position: relative; /* O/X 마크를 배치하기 위함 */
+    background-color: #f9f9f9;
+}
+
+/* 성적표 O/X 마크 */
+.scorecard-item .mark {
+    font-size: 1.5em; /* O/X 아이콘 크기 */
+    line-height: 1; /* 줄 높이 조절 */
+    margin-top: 2px; /* 번호와 마크 사이 간격 */
+    pointer-events: none; /* 클릭 방해 방지 */
+}
+
+/* 성적표 정답 마크 */
+.scorecard-item.correct-mark {
+    background-color: #e6ffe6; /* 연한 녹색 배경 */
+    border-color: #28a745; /* 녹색 테두리 */
+}
+.scorecard-item.correct-mark .mark {
+    color: #28a745; /* 녹색 O */
+}
+
+/* 성적표 오답 마크 */
+.scorecard-item.incorrect-mark {
+    background-color: #ffe6e6; /* 연한 빨간색 배경 */
+    border-color: #dc3545; /* 빨간색 테두리 */
+}
+.scorecard-item.incorrect-mark .mark {
+    color: #dc3545; /* 빨간색 X */
+}
+
+/* 성적 요약 텍스트 */
+.score-summary {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #333;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}

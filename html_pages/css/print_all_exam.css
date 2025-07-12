@@ -1,0 +1,101 @@
+/* print_all_exam.css (인쇄 시 전용 스타일) */
+@media print {
+    body {
+        background-color: #fff;
+        color: #000;
+    }
+    header, footer, .quiz-navigation, .progress-section, .action-button, .listen-button, .day-selection-controls {
+        display: none !important; /* 인쇄 시 불필요한 요소 숨기기 */
+    }
+    main {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        max-width: none;
+    }
+    #quiz-problems-area {
+        max-height: none !important; /* 인쇄 시 스크롤 제한 제거 */
+        overflow-y: visible !important; /* 인쇄 시 스크롤바 숨김 */
+        padding-right: 0 !important;
+    }
+    .quiz-item {
+        page-break-inside: avoid; /* 문제가 페이지 중간에 잘리지 않도록 */
+        border-bottom: 1px solid #eee; /* 인쇄 시 구분선 */
+        padding: 10px 0;
+        margin-bottom: 10px;
+    }
+    .quiz-item:last-child {
+        border-bottom: none;
+    }
+    .quiz-question-number, .quiz-question-text {
+        color: #000 !important; /* 인쇄 시 검은색 글자 */
+    }
+    .quiz-meaning, .quiz-example {
+        font-size: 0.9em;
+        color: #333;
+    }
+    .option-button { /* 객관식 보기도 인쇄 시에 보기 좋게 */
+        background-color: #fff;
+        border: 1px solid #ccc;
+        box-shadow: none;
+        color: #000;
+        padding: 8px 12px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    .item-image {
+        /* display: none; /* 인쇄 시 이미지는 숨길 수도 있음 */
+        /* If you want images to print, make sure this is NOT 'none' */
+        /* And apply appropriate sizing for print */
+        max-width: 100%; /* Ensure images don't overflow print page */
+        height: auto;
+        display: block; /* Ensure it's rendered */
+        margin: 5px auto; /* Centered with some margin */
+    }
+
+    /* Vowel Scramble이나 Alphabet Scramble의 3D 버튼도 인쇄 시 평범한 텍스트처럼 보이게 조정 */
+    .text-button-3d, .vowelscramble-char {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: 1px dashed #ccc !important;
+        border-radius: 0 !important;
+        color: #000 !important;
+    }
+    .vowelscramble-char.vowelscramble-blank {
+        border-bottom: 2px solid #000 !important; /* 인쇄 시 빈칸 강조 */
+        background-color: transparent !important;
+    }
+
+    /* --- NEW: Show solutions and answer details for print --- */
+    .quiz-feedback, .quiz-answer-details {
+        display: block !important; /* Make feedback and answer details visible when printing */
+        color: #000; /* Ensure text is black for printing */
+        margin-top: 10px; /* Add some space above the solution */
+        padding: 5px 0; /* Add a little padding */
+        border-top: 1px dashed #ccc; /* Optional: a dashed line to separate solution */
+    }
+    .quiz-feedback {
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    .quiz-answer-details p {
+        margin: 5px 0; /* Adjust spacing for paragraphs within details */
+        font-size: 0.85em; /* Slightly smaller font for details */
+    }
+    .quiz-answer-details .correct-word,
+    .quiz-answer-details .correct-meaning {
+        font-weight: bold;
+        color: #155724; /* Green-ish for correct answer highlighting */
+    }
+    /* For Listening quiz options, ensure the correct one is highlighted */
+    .option-button.correct {
+        background-color: #e6ffe6 !important; /* Light green background for correct option */
+        border: 1px solid #28a745 !important;
+        box-shadow: none !important;
+    }
+
+    /* Ensure .listen-button within answer details is also hidden in print */
+    .quiz-answer-details .listen-button {
+        display: none !important;
+    }
+}

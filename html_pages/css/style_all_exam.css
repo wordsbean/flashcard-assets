@@ -1,0 +1,22 @@
+/* style_all_exam.css (일반 화면용 스타일) */
+
+#quiz-problems-area {
+    /* 스크롤 가능하도록 설정 */
+    max-height: calc(100vh - 350px); /* 화면 높이에서 헤더, 푸터, 네비게이션, Day 선택 등 제외 */
+    overflow-y: auto; /* 세로 스크롤 활성화 */
+    padding-right: 15px; /* 스크롤바 공간 확보 */
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+}
+
+/* 개별 퀴즈 문제 아이템 */
+.quiz-item {
+    border-bottom: 1px dashed #ccc; /* 문제 간 구분선 */
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+}
+
+.quiz-item:last-child {
+    border-bottom: none; /* 마지막 문제는 구분선 없음 */
+    margin-bottom: 0;
+    padding-bottom: 0;
+}

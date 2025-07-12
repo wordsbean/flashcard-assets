@@ -1,0 +1,413 @@
+/* quiz_styles.css */
+/* 퀴즈 아이템 공통 스타일 */
+.quiz-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.quiz-question-number {
+    /* 기존: font-size: 1.2em; */
+    font-size: 1.5em; /* 폰트 크기 증가 */
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 10px;
+    position: relative; /* ::after 가상 요소를 배치하기 위함 */
+    display: inline-block; /* O/X가 번호 옆에 오도록 인라인 블록으로 설정 */
+    padding-right: 1.5em; /* O/X 공간 확보 (폰트 크기에 따라 조절) */
+}
+
+/* 문제 번호 옆 O/X 표시를 위한 가상 요소 공통 스타일 */
+.quiz-question-number::after {
+    content: ''; /* SVG를 배경 이미지로 사용할 때는 content를 비워둠 */
+    position: absolute;
+    top: 50%; /* 세로 중앙 정렬 */
+    right: 0; /* 문제 번호의 오른쪽 끝에 배치 */
+    transform: translateY(-50%); /* 세로 중앙 정렬 보정 */
+    width: 1.5em; /* O/X 표시의 너비 (문제 번호 폰트 크기 기준) */
+    height: 1.5em; /* O/X 표시의 높이 */
+    background-size: contain; /* 배경 이미지 크기 조절 */
+    background-repeat: no-repeat; /* 반복 없음 */
+    background-position: center; /* 중앙 정렬 */
+    pointer-events: none; /* O/X 표시가 아래 요소를 클릭하는 것을 방해하지 않도록 함 */
+    z-index: 10; /* 다른 요소 위에 표시되도록 */
+}
+
+/* 정답인 경우 (녹색 원 - O) */
+.quiz-question-number.question-correct::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' stroke='green' stroke-width='10' fill='none'/%3E%3C/svg%3E");
+}
+
+/* 오답인 경우 (빨간색 X) */
+.quiz-question-number.question-incorrect::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cline x1='10' y1='10' x2='90' y2='90' stroke='red' stroke-width='10'/%3E%3Cline x1='90' y1='10' x2='10' y2='90' stroke='red' stroke-width='10'/%3E%3C/svg%3E");
+}
+
+.quiz-question-text {
+    /* 기존: font-size: 1.3em; */
+    font-size: 1.6em; /* 폰트 크기 증가 */
+    font-weight: bold;
+    color: #333;
+}
+
+/* 새로 추가하거나 수정: 학습 모드의 단어, 의미, 예문 폰트 크기 조정 */
+.quiz-meaning, .quiz-example {
+    /* 기존: font-size: 1.1em; */
+    font-size: 1.3em; /* 폰트 크기 증가 */
+    color: #555;
+}
+
+.quiz-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-button {
+    flex: 1 1 auto; /* 유연하게 공간 차지 */
+    min-width: 120px; /* 최소 너비 */
+    background-color: #e0e0e0;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    /* 기존: font-size: 1.1em; */
+    font-size: 1.2em; /* 폰트 크기 증가 */
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 3px 0 0 #b0b0b0; /* 3D 효과 */
+}
+
+.option-button:hover {
+    background-color: #d0d0d0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 0 #b0b0b0;
+}
+
+.option-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 0 #b0b0b0;
+}
+
+/* 선택된 옵션 */
+.option-button.selected {
+    background-color: #cceeff;
+    border: 2px solid #007bff;
+    box-shadow: 0 1px 0 0 #007bff;
+    transform: translateY(1px);
+}
+
+/* 정답/오답 피드백 */
+.option-button.correct {
+    background-color: #d4edda;
+    border-color: #28a745;
+    box-shadow: 0 1px 0 0 #28a745;
+    color: #155724;
+}
+
+.option-button.incorrect {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    box-shadow: 0 1px 0 0 #dc3545;
+    color: #721c24;
+}
+
+/* 3D 텍스트 버튼 스타일 (vowel scramble, alphabet scramble 등에서 사용) */
+.text-button-3d {
+    display: inline-flex; /* 텍스트 정렬을 위해 */
+    justify-content: center;
+    align-items: center;
+    min-width: 2.5em; /* 글자 크기에 따라 조절 */
+    height: 2.5em; /* 글자 크기에 따라 조절 */
+    margin: 0 0.2em;
+    font-weight: bold;
+    font-size: 1.5em; /* 적절한 폰트 크기 */
+    background-color: #f0f0f0; /* 기본 배경색 */
+    border-radius: 8px; /* 둥근 모서리 */
+    box-shadow:
+        0 4px 0 0 #ccc, /* 그림자 (3D 효과) */
+        0 6px 10px rgba(0,0,0,0.2); /* 더 큰 그림자로 떠 있는 느낌 */
+    transition: all 0.1s ease-out; /* 부드러운 전환 */
+    border: none;
+    cursor: pointer; /* 기본적으로는 클릭 가능 */
+    user-select: none; /* 텍스트 선택 방지 */
+}
+
+.text-button-3d:hover {
+    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
+    box-shadow:
+        0 6px 0 0 #ccc,
+        0 8px 12px rgba(0,0,0,0.3);
+}
+
+.text-button-3d:active {
+    transform: translateY(1px); /* 눌리는 효과 */
+    box-shadow: 0 1px 0 0 #ccc;
+}
+
+/* Vowel Scramble 관련 */
+.vowelscramble-word-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.consonant-blanks {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.vowelscramble-char {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.5em;
+    height: 2.5em;
+    font-weight: bold;
+    font-size: 1.5em;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 0 0 #ccc, 0 6px 10px rgba(0,0,0,0.2);
+    transition: all 0.1s ease-out;
+    border: none;
+    user-select: none;
+}
+
+.vowelscramble-char.vowelscramble-blank {
+    background-color: #e0f7fa; /* 빈칸은 다른 색으로 강조 */
+    box-shadow:
+        0 4px 0 0 #a7d9e2,
+        0 6px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.vowelscramble-char.vowelscramble-blank:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 0 0 #a7d9e2,
+        0 8px 12px rgba(0,0,0,0.3);
+}
+
+.vowel-pool {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.vowel-pool-button {
+    width: 3em;
+    height: 3em;
+    font-size: 1.8em;
+}
+
+.item-image {
+    max-width: 350px;
+    max-height: 350px;
+    border-radius: 5px;
+    margin-left: 15px;
+    object-fit: contain;
+}
+
+.vowelscramble-meaning, .vowelscramble-sentence {
+    font-size: 1.1em;
+    color: #555;
+}
+
+.listen-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #4CAF50;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+.listen-button:hover {
+    color: #388e3c;
+}
+
+/* General styling for quiz items to ensure consistent sizing */
+.quiz-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+/* Styling for the meaning/question text */
+.quiz-question-text {
+    font-size: 1.2em; /* Slightly larger for clarity */
+    margin-bottom: 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping for long lines */
+}
+
+/* --- Word Scramble Specific Styles --- */
+
+/* Container for the word being assembled (the slots) */
+.word-scramble-assembly-area {
+    display: flex; /* Arranges spans in a row */
+    gap: 5px; /* Space between letters/blanks */
+    margin-bottom: 20px;
+    border: 1px solid #ddd; /* A subtle border to show it's an input area */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-height: 50px; /* Ensure a minimum height even with no letters */
+    align-items: center; /* Vertically align items */
+    justify-content: center; /* Center the word horizontally if space allows */
+}
+
+/* Individual letter/blank slots in the assembly area */
+.word-scramble-char {
+    display: inline-flex; /* Use flexbox for vertical centering within the span */
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Fixed width for each letter slot */
+    height: 40px; /* Fixed height */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #eee;
+    font-size: 1.8em; /* Significantly larger font size */
+    font-weight: bold;
+    color: #333;
+    cursor: pointer; /* Indicates it's clickable */
+    user-select: none; /* Prevent text selection */
+    transition: all 0.15s ease-in-out; /* Smooth transitions */
+}
+
+.word-scramble-char.fixed {
+    background-color: #a0d468; /* Distinct color for fixed letter */
+    color: #fff;
+    border-color: #8cc152;
+    cursor: default; /* Not clickable to remove */
+}
+
+.word-scramble-char.blank {
+    background-color: #f0f0f0; /* Color for empty blanks */
+    color: #bbb; /* Lighter color for underscore */
+    border-style: dashed; /* Dashed border for blanks */
+    font-size: 1.5em; /* Slightly smaller for underscore */
+}
+
+.word-scramble-char.filled {
+    background-color: #d1e7dd; /* Light green for filled slots */
+    color: #0f5132;
+    border-color: #badbcc;
+    cursor: pointer; /* Still clickable to return */
+}
+
+.word-scramble-char.correct {
+    background-color: #d4edda; /* Green for correct letters */
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.word-scramble-char.incorrect {
+    background-color: #f8d7da; /* Red for incorrect letters */
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+
+/* Container for the scrambled letter pool */
+.word-scramble-pool {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap to the next line */
+    gap: 10px; /* Space between buttons */
+    margin-top: 15px;
+    justify-content: center; /* Center buttons horizontally */
+    padding: 10px;
+    border: 1px solid #eee; /* Subtle border for the pool area */
+    border-radius: 8px;
+    background-color: #fefefe;
+}
+
+/* Buttons for individual scrambled letters in the pool */
+.scramble-pool-button {
+    /* Existing .text-button-3d styles will apply here */
+    width: 50px; /* Slightly larger width */
+    height: 50px; /* Slightly larger height */
+    font-size: 2em; /* Very large font for letters */
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s ease-in-out;
+    /* Optional: Add some random positioning for visual "scramble" */
+    /* This can be achieved with JavaScript for true random positions,
+       but for pure CSS, flex-wrap with varying margins/padding might give some effect */
+    /* For a truly "scattered" look, consider using CSS Grid with random order or JS for absolute positioning.
+       For now, flexbox with gap gives a good organized-but-pickable look. */
+}
+
+.scramble-pool-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.scramble-pool-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #dcdcdc; /* Lighter background for disabled */
+    color: #a0a0a0; /* Faded text for disabled */
+    transform: none;
+    box-shadow: none;
+}
+
+/* Existing .text-button-3d might need to be adjusted if it clashes */
+/* For example, if .text-button-3d has a fixed width/height that is too small */
+.text-button-3d {
+    /* Ensure these are general button styles and don't override specific ones above */
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 3px 0 0 #0056b3; /* 3D effect */
+    position: relative;
+    top: 0;
+}
+
+.text-button-3d.selected { /* Style for selected buttons, if you have one */
+    background-color: #888;
+    box-shadow: 0 1px 0 0 #555;
+    top: 2px;
+}
+
+
+
+.quiz-image {
+    max-width: 250px; /* Larger max-width for the main quiz image */
+    max-height: 250px; /* Max height to prevent overly tall images */
+    width: auto; /* Maintain aspect ratio */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Block element for centering */
+    margin: 0 auto 15px auto; /* Center horizontally, add space below */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 8px;
+    object-fit: contain; /* Ensures the whole image is visible */
+    padding: 5px; /* Small padding inside border */
+    background-color: #fff; /* White background in case of transparent images */
+}
+
