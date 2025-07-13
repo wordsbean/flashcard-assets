@@ -1,29 +1,23 @@
 // main_quiz.js
 
-// GitHub Pages URL의 기본 경로 (당신의 계정명과 저장소명으로 변경하세요!)
-const GITHUB_PAGES_BASE_URL = "https://[계정명].github.io/[저장소명]/";
-// 예: const GITHUB_PAGES_BASE_URL = "https://wordsbean.github.io/flashcard-assets/";
+// GitHub Pages URL의 기본 경로
+const GITHUB_PAGES_BASE_URL = "https://wordsbean.github.io/flashcard-assets/";
 
-// 퀴즈 데이터 변수 (초기에는 비어있음, loadQuizData()에서 채워짐)
-let quizAllWordsData = []; 
-
-// UI 요소 접근을 위한 전역 변수들 선언 (initializeQuiz()에서 할당됨)
+// 전역 변수 선언 (스코프 관리를 위해 let으로 선언하고 DOMContentLoaded 내에서 할당)
+let quizAllWordsData = [];
+let masteredWords = [];
 let daySelector, prevDayButton, nextDayButton, currentDayDisplay, quizProblemsArea, submitQuizButton, newQuizButton, startQuizButton;
 let scoreReportModal, scorecardGrid, summaryCorrect, summaryIncorrect;
-let allDays = []; // 모든 Day 번호를 저장할 배열
-let currentDay = null; // 현재 선택된 Day
-
-// 퀴즈 세션 상태 변수
-let currentQuizProblems = []; 
-let userAnswers = {}; 
+let allDays = [];
+let currentDay = null;
+let currentQuizProblems = [];
+let userAnswers = {};
 let currentQuizSessionScore = { correct: 0, total: 0 };
-
-// localStorage에서 마스터한 단어 로드 (initializeQuiz() 내에서 초기화)
-let masteredWords = []; 
 
 
 // ----------------------------------------------------------------
 // 음성 합성 기능 (SpeechSynthesis API) 및 MP3 재생 기능
+// window 객체에 직접 연결하여 HTML에서 바로 호출 가능하게 합니다.
 // ----------------------------------------------------------------
 const synth = window.speechSynthesis;
 let voices = [];
@@ -31,17 +25,21 @@ let voices = [];
 function populateVoiceList() {
     voices = synth.getVoices().sort((a, b) => {
         const aname = a.name.toUpperCase();
-        const bname = b.name.toUpperCase();
+        const bname = b.name.toUpperCase(); // <-- 여기를 b.name으로 수정했습니다.
         if (aname < bname) return -1;
         if (aname > bname) return +1;
         return 0;
     });
 }
 
+// voiceschanged 이벤트에만 등록
 if (synth.onvoiceschanged !== undefined) {
     synth.onvoiceschanged = populateVoiceList;
+} else {
+    // onvoiceschanged가 지원되지 않는 경우 초기 한 번 호출 (fallback)
     populateVoiceList();
 }
+
 
 window.speakText = (text, langCode) => {
     if (!synth) {
@@ -49,25 +47,27 @@ window.speakText = (text, langCode) => {
         return;
     }
     if (synth.speaking) {
-        synth.cancel();
+        synth.cancel(); // 이전 음성 재생 중지
     }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = langCode;
     synth.speak(utterance);
 };
 
-// MP3 오디오 재생 함수 (GitHub Pages URL 사용)
-window.playMp3Audio = (audioPath) => { // audioPath는 'audios/word.mp3'와 같은 상대 경로
+// MP3 오디오 재생 함수: URL 중복을 처리합니다.
+window.playMp3Audio = (audioPath) => {
     if (audioPath) {
-        const fullAudioUrl = GITHUB_PAGES_BASE_URL + audioPath;
+        // audioPath가 이미 GITHUB_PAGES_BASE_URL로 시작하는지 확인하여 중복 방지
+        const fullAudioUrl = audioPath.startsWith(GITHUB_PAGES_BASE_URL) ? audioPath : GITHUB_PAGES_BASE_URL + audioPath;
         const audio = new Audio(fullAudioUrl);
         audio.play().catch(e => console.error("MP3 오디오 재생 실패:", e));
     } else {
-        console.warn("오디오 경로가 제공되지 않았습니다.");
+        console.warn("오디오 URL이 제공되지 않았습니다.");
     }
 };
 
-// Sound Effects (UI/효과음 MP3) - GitHub Pages URL 사용
+// Sound Effects (절대 경로 사용)
+// 이 경로들은 'flashcard-assets' 저장소의 루트에 'audio' 폴더가 있다고 가정합니다.
 const correctAudio = new Audio(GITHUB_PAGES_BASE_URL + 'audio/correct.mp3');
 const incorrectAudio = new Audio(GITHUB_PAGES_BASE_URL + 'audio/incorrect.mp3');
 const fanfareAudio = new Audio(GITHUB_PAGES_BASE_URL + 'audio/fanfare.mp3');
@@ -127,7 +127,9 @@ window.updateProgressDisplay = () => {
     document.getElementById('learned-overall-words').textContent = learnedOverallWords;
     document.getElementById('overall-progress-percentage').textContent = overallProgressPercentage.toFixed(1);
 
-    const wordsForCurrentDay = quizAllWordsData.filter(wordData => parseInt(wordData.day) === parseInt(currentDay || (allDays.length > 0 ? allDays[0] : 1)));
+    // currentDay가 null이거나 유효하지 않을 때 안전하게 처리
+    const currentDayVal = currentDay || (allDays.length > 0 ? allDays[0] : '1');
+    const wordsForCurrentDay = quizAllWordsData.filter(wordData => parseInt(wordData.day) === parseInt(currentDayVal));
     const totalWordsForDay = wordsForCurrentDay.length;
     const learnedWordsForDay = wordsForCurrentDay.filter(wordData =>
         masteredWords.some(item => item.word === wordData.word.toUpperCase())
@@ -158,10 +160,12 @@ function getDistractors(correctWordData, allAvailableWordsForDistractors, count,
         }
     }
 
+    // 테마로 충분한 오답을 얻지 못하면, 같은 Day의 다른 단어에서 찾음
     if (distractors.size < count) {
         potentialDistractors = allAvailableWordsForDistractors.filter(wd =>
             parseInt(wd.day) === parseInt(correctWordData.day) &&
-            wd[propertyKey] !== correctWordData[propertyKey]
+            wd[propertyKey] !== correctWordData[propertyKey] &&
+            !distractors.has(wd[propertyKey]) // 이미 추가된 중복 오답 방지
         );
         shuffleArray(potentialDistractors);
         for(const wd of potentialDistractors) {
@@ -171,6 +175,7 @@ function getDistractors(correctWordData, allAvailableWordsForDistractors, count,
         }
     }
 
+    // 같은 Day에서도 충분한 오답을 얻지 못하면, 전체 단어에서 학습하지 않은 단어를 우선하여 찾음
     if (distractors.size < count) {
         const allOtherUnmasteredWords = quizAllWordsData.filter(wd =>
             wd[propertyKey] !== correctWordData[propertyKey] &&
@@ -182,6 +187,18 @@ function getDistractors(correctWordData, allAvailableWordsForDistractors, count,
             if (distractors.size < count) {
                 distractors.add(wd[propertyKey]);
             } else break;
+        }
+    }
+    
+    // 최종적으로 그래도 부족하면, 전체 단어 중 임의로 추가 (이미 추가된 오답은 제외)
+    while (distractors.size < count && quizAllWordsData.length > 0) {
+        const randomWordData = shuffleArray(quizAllWordsData.filter(wd =>
+            wd[propertyKey] !== correctWordData[propertyKey] && !distractors.has(wd[propertyKey])
+        ))[0];
+        if (randomWordData) {
+            distractors.add(randomWordData[propertyKey]);
+        } else {
+            break; // 더 이상 추가할 단어가 없음
         }
     }
 
@@ -196,14 +213,14 @@ function getHighlightedExample(sentence, wordToHighlight) {
 }
 
 
-// --- Quiz Type 1: English Word to Korean Meaning (영단어 -> 한글 의미) ---
+// --- Quiz Item 생성 함수들 ---
+
+// Quiz Type 1: English Word to Korean Meaning (영단어 -> 한글 의미)
 function createEnglishToKoreanQuizItem(wordData, questionNumber, allWordsForCurrentDay) {
     const correctMeaning = wordData.meaning;
     const englishWord = wordData.word;
     const highlightedEnglishExample = getHighlightedExample(wordData.eng_example, englishWord);
-
     const distractors = getDistractors(wordData, quizAllWordsData, 3, 'meaning', true);
-
     let options = [correctMeaning, ...distractors];
     options = shuffleArray(options);
 
@@ -226,7 +243,7 @@ function createEnglishToKoreanQuizItem(wordData, questionNumber, allWordsForCurr
             <button class="listen-button" onclick="speakText('${englishWord}', 'en-US')">🔊</button>
             ${wordData.word_ee_audio_url ? `<button class="listen-button" onclick="playMp3Audio('${wordData.word_ee_audio_url}')">🎧</button>` : ''}
         </div>
-        ${wordData.image_url ? `<img src="${GITHUB_PAGES_BASE_URL + wordData.image_url}" alt="${englishWord}" class="item-image">` : ''}
+        ${wordData.image_url ? `<img src="${wordData.image_url}" alt="${englishWord}" class="item-image">` : ''}
         <div class="quiz-options">${optionsHtml}</div>
         <div class="quiz-feedback" style="display:none;"></div>
         <div class="quiz-answer-details" style="display:none;">
@@ -254,18 +271,16 @@ function createEnglishToKoreanQuizItem(wordData, questionNumber, allWordsForCurr
     return quizItemDiv;
 }
 
-// --- Quiz Type 2: Korean Meaning to English Word (한글 의미 -> 영단어) ---
+// Quiz Type 2: Korean Meaning to English Word (한글 의미 -> 영단어)
 function createKoreanToEnglishQuizItem(wordData, questionNumber, allWordsForCurrentDay) {
     const correctEnglishWord = wordData.word;
     const koreanMeaning = wordData.meaning;
     const highlightedEnglishExample = getHighlightedExample(wordData.eng_example, correctEnglishWord);
-
     const distractors = getDistractors(wordData, quizAllWordsData, 3, 'word', true);
-
     let options = [correctEnglishWord, ...distractors];
     options = shuffleArray(options);
 
-    const quizItemDiv = document.createElement('div'); // *** 이 부분 수정됨 ***
+    const quizItemDiv = document.createElement('div');
     quizItemDiv.className = 'quiz-item';
     quizItemDiv.setAttribute('data-question-type', 'kor-to-eng');
     quizItemDiv.setAttribute('data-correct-answer', correctEnglishWord);
@@ -312,7 +327,7 @@ function createKoreanToEnglishQuizItem(wordData, questionNumber, allWordsForCurr
 }
 
 
-// --- Quiz Type 3: Sentence Fill-in-the-Blank (문장 빈칸 채우기) ---
+// Quiz Type 3: Sentence Fill-in-the-Blank (문장 빈칸 채우기)
 function createSentenceFillInBlankQuizItem(wordData, questionNumber, allWordsForCurrentDay) {
     const correctWord = wordData.word;
     const englishSentence = wordData.eng_example;
@@ -328,9 +343,7 @@ function createSentenceFillInBlankQuizItem(wordData, questionNumber, allWordsFor
     }
 
     const highlightedEnglishExample = getHighlightedExample(englishSentence, correctWord);
-
     const distractors = getDistractors(wordData, quizAllWordsData, 3, 'word', true);
-
     let options = [correctWord, ...distractors];
     options = shuffleArray(options);
 
@@ -382,7 +395,7 @@ function createSentenceFillInBlankQuizItem(wordData, questionNumber, allWordsFor
     return quizItemDiv;
 }
 
-// --- Quiz Type 4: Vowel Fill-in-the-Blank (철자 채우기 - 모음) ---
+// Quiz Type 4: Vowel Fill-in-the-Blank (철자 채우기 - 모음)
 function createVowelFillInBlankQuizItem(wordData, questionNumber) {
     const correctWord = wordData.word.toUpperCase();
     const koreanMeaning = wordData.meaning;
@@ -510,7 +523,7 @@ function createVowelFillInBlankQuizItem(wordData, questionNumber) {
 }
 
 
-// --- NEW Quiz Type 5: Image + Korean Meaning to English Word (Listening Quiz) ---
+// Quiz Type 5: Image + Korean Meaning to English Word (Listening Quiz)
 function createListeningQuizItem(wordData, questionNumber) {
     const correctEnglishWord = wordData.word;
     const koreanMeaning = wordData.meaning;
@@ -521,7 +534,6 @@ function createListeningQuizItem(wordData, questionNumber) {
     const distractorWords = getDistractors(wordData, quizAllWordsData, 3, 'word', true);
 
     let optionsWithAudio = [];
-
     optionsWithAudio.push({ word: correctEnglishWord, audioUrl: correctAudioUrl });
 
     distractorWords.forEach(dWord => {
@@ -533,7 +545,6 @@ function createListeningQuizItem(wordData, questionNumber) {
         }
     });
 
-    // Ensure we always have 4 options if possible, fill with more random if needed
     while (optionsWithAudio.length < 4 && quizAllWordsData.length > 0) {
         const potentialRandomWords = shuffleArray(quizAllWordsData.filter(wd =>
             !optionsWithAudio.some(opt => opt.word === wd.word) && wd.word_ee_audio_url
@@ -545,7 +556,6 @@ function createListeningQuizItem(wordData, questionNumber) {
             break;
         }
     }
-
 
     optionsWithAudio = shuffleArray(optionsWithAudio);
 
@@ -565,9 +575,9 @@ function createListeningQuizItem(wordData, questionNumber) {
         <div class="quiz-question-number">문제 ${questionNumber}.</div>
         <div class="quiz-question-type-description">다음 단어의 소리를 선택하세요.</div>
         <div class="quiz-question-content-wrapper">
-            ${imageUrl ? `<img src="${GITHUB_PAGES_BASE_URL + imageUrl}" alt="${correctEnglishWord}" class="quiz-image">` : ''}
+            ${imageUrl ? `<img src="${imageUrl}" alt="${correctEnglishWord}" class="quiz-image">` : ''}
             <div class="quiz-question-text">
-                이미지: <span class="meaning-to-guess">${koreanMeaning}</span>
+                의미: <span class="meaning-to-guess">${koreanMeaning}</span>
                 <button class="listen-button" onclick="speakText('${koreanMeaning}', 'ko-KR')">🔊</button>
                 ${wordData.word_kk_audio_url ? `<button class="listen-button" onclick="playMp3Audio('${wordData.word_kk_audio_url}')">🎧</button>` : ''}
             </div>
@@ -609,7 +619,7 @@ function generateAndDisplayQuiz() {
     quizProblemsArea.innerHTML = '';
     submitQuizButton.style.display = 'inline-block';
     newQuizButton.style.display = 'none';
-    // startQuizButton.style.display = 'inline-block'; // initializeQuiz에서 제어 (이미 제어됨)
+    startQuizButton.style.display = 'none'; // 퀴즈 시작 버튼 숨김
 
     const allUnmasteredWords = quizAllWordsData.filter(wordData =>
         !masteredWords.some(item => item.word === wordData.word.toUpperCase())
@@ -700,119 +710,7 @@ function generateAndDisplayQuiz() {
 
 
 // ----------------------------------------------------------------
-// 퀴즈 제출 및 피드백 로직
-// ----------------------------------------------------------------
-submitQuizButton.addEventListener('click', () => {
-    currentQuizSessionScore.correct = 0;
-    let totalAnsweredCount = 0;
-    let hasUnansweredQuestions = false;
-
-    currentQuizProblems.forEach(problem => {
-        const questionId = problem.questionNumber;
-        const quizItemElement = problem.element;
-        let userAnswer;
-
-        // Determine user answer based on question type
-        if (problem.type === 'vowel-fill-in-blank') {
-            const blanksArea = quizItemElement.querySelector('.vowelscramble-word-area');
-            const reconstructedWord = Array.from(blanksArea.querySelectorAll('.vowelscramble-char')).map(span => {
-                return span.textContent === '_' ? '' : span.textContent;
-            }).join('');
-            userAnswer = reconstructedWord.toUpperCase();
-        } else { // This now covers all multiple-choice types including 'listening-quiz'
-            const selectedButton = quizItemElement.querySelector('.option-button.selected');
-            userAnswer = selectedButton ? selectedButton.getAttribute('data-option-value') : undefined;
-        }
-
-        const correctAnswer = quizItemElement.getAttribute('data-correct-answer');
-        const feedbackDiv = quizItemElement.querySelector('.quiz-feedback');
-        const answerDetailsDiv = quizItemElement.querySelector('.quiz-answer-details');
-        const optionButtons = quizItemElement.querySelectorAll('.option-button');
-
-        const questionNumberDiv = quizItemElement.querySelector('.quiz-question-number');
-
-        // Reset UI for multiple choice options if applicable
-        // This condition is now true for all types except 'vowel-fill-in-blank'
-        if (problem.type !== 'vowel-fill-in-blank') {
-            optionButtons.forEach(btn => {
-                btn.classList.remove('correct', 'incorrect');
-            });
-        }
-
-        feedbackDiv.style.display = 'block';
-        answerDetailsDiv.style.display = 'none';
-
-        questionNumberDiv.classList.remove('question-correct', 'question-incorrect');
-
-        if (userAnswer === undefined || userAnswer === '' || (problem.type === 'vowel-fill-in-blank' && userAnswer.length !== correctAnswer.length)) {
-            hasUnansweredQuestions = true;
-            feedbackDiv.textContent = '아직 답을 선택하지 않았거나, 단어가 완성되지 않았습니다. 🤔';
-            feedbackDiv.style.color = 'orange';
-            problem.result = 'unanswered';
-        } else {
-            totalAnsweredCount++;
-            if (userAnswer.toUpperCase() === correctAnswer.toUpperCase()) {
-                currentQuizSessionScore.correct++;
-                feedbackDiv.textContent = '정답입니다! 🎉';
-                feedbackDiv.style.color = 'green';
-                if (problem.type !== 'vowel-fill-in-blank') {
-                    quizItemElement.querySelector(`[data-option-value="${userAnswer}"]`).classList.add('correct');
-                } else {
-                    quizItemElement.querySelectorAll('.vowelscramble-char').forEach(charSpan => {
-                        charSpan.classList.add('correct');
-                    });
-                }
-                markWordAsMastered(problem.wordData.word);
-                questionNumberDiv.classList.add('question-correct');
-                problem.result = 'correct';
-            } else {
-                feedbackDiv.textContent = '오답입니다. 😔';
-                feedbackDiv.style.color = 'red';
-                if (problem.type !== 'vowel-fill-in-blank') {
-                    quizItemElement.querySelector(`[data-option-value="${userAnswer}"]`).classList.add('incorrect');
-                    quizItemElement.querySelector(`[data-option-value="${correctAnswer}"]`).classList.add('correct');
-                } else {
-                    const originalWordChars = correctAnswer.toUpperCase().split('');
-                    quizItemElement.querySelectorAll('.vowelscramble-char').forEach((charSpan, idx) => {
-                        if ('AEIOUY'.includes(originalWordChars[idx])) {
-                            charSpan.textContent = originalWordChars[idx];
-                        }
-                        charSpan.classList.add('correct');
-                    });
-                    quizItemElement.querySelectorAll('.vowel-pool-button').forEach(btn => btn.disabled = true);
-                }
-                questionNumberDiv.classList.add('question-incorrect');
-                problem.result = 'incorrect';
-            }
-        }
-    });
-
-    const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-    document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
-
-    if (hasUnansweredQuestions) {
-        alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
-        submitQuizButton.style.display = 'inline-block';
-        newQuizButton.style.display = 'none';
-    } else {
-        submitQuizButton.style.display = 'none';
-        newQuizButton.style.display = 'inline-block';
-
-        if (currentQuizSessionScore.total > 0) {
-            const scorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-            if (scorePercentage >= 80) {
-                fanfareAudio.currentTime = 0;
-                fanfareAudio.play().catch(e => console.error("Fanfare audio playback failed:", e));
-            }
-        }
-        showScoreReportModal();
-    }
-    updateProgressDisplay();
-}
-
-
-// ----------------------------------------------------------------
-// 클립보드 복사 기능
+// 클립보드 복사 기능 (window에 직접 연결)
 // ----------------------------------------------------------------
 window.copyLearnedWordsToClipboard = () => {
     const masteredWordsData = JSON.parse(localStorage.getItem('masteredWords')) || [];
@@ -846,7 +744,7 @@ window.copyQuizResultToClipboard = () => {
     } else { alert("이 브라우저에서는 클립보드 복사를 지원하지 않습니다."); }
 };
 
-// --- 정답/해설 보기 토글 함수 ---
+// --- 정답/해설 보기 토글 함수 (window에 직접 연결) ---
 window.toggleAnswerAndDetails = (questionId) => {
     const problemElement = currentQuizProblems.find(p => p.questionNumber === questionId)?.element;
 
@@ -870,7 +768,7 @@ window.toggleAnswerAndDetails = (questionId) => {
     }
 };
 
-// --- 성적표 모달 표시/숨기기 함수 ---
+// --- 성적표 모달 표시/숨기기 함수 (window에 직접 연결) ---
 window.showScoreReportModal = () => {
     scorecardGrid.innerHTML = '';
     let correctCount = 0;
@@ -909,7 +807,7 @@ window.showScoreReportModal = () => {
     if (summaryTotalScoreElement) {
         summaryTotalScoreElement.textContent = totalScoreForModal.toFixed(0);
     } else {
-        console.error("Error: Element with ID 'summary-total-score' not found in the HTML. Please ensure generate_all_exam_html_for_blogger.py was run after adding it to the HTML template.");
+        console.error("Error: Element with ID 'summary-total-score' not found in the HTML.");
     }
 
     scoreReportModal.classList.add('show-modal');
@@ -920,15 +818,14 @@ window.hideScoreReportModal = () => {
 };
 
 
-// --- 퀴즈 초기화 및 UI 요소 접근을 위한 전역 변수들 선언 (initializeQuiz()에서 할당됨) ---
-// 이 변수들은 이미 파일 상단에 전역 변수로 선언되어 있으므로, 여기서는 할당만 진행합니다.
+// ----------------------------------------------------------------
+// 초기화 로직: DOMContentLoaded 이벤트 발생 시 실행
+// UI 요소 할당, 데이터 로드, 이벤트 리스너 등록, 초기 화면 표시 순서
+// ----------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("main_quiz.js 로드됨. 초기화 시작.");
 
-
-// --- 퀴즈 초기화 함수 (JSON 데이터 로드 후 호출됨) ---
-function initializeQuiz() {
-    console.log("퀴즈 초기화 시작.");
-
-    // UI 요소들을 초기화 함수 내에서 한 번만 할당
+    // 1. UI 요소 할당: DOM이 완전히 로드된 후에 실행되어야 합니다.
     daySelector = document.getElementById('day-selector');
     prevDayButton = document.getElementById('prev-day-button');
     nextDayButton = document.getElementById('next-day-button');
@@ -942,16 +839,41 @@ function initializeQuiz() {
     scorecardGrid = document.getElementById('scorecard-grid');
     summaryCorrect = document.getElementById('summary-correct');
     summaryIncorrect = document.getElementById('summary-incorrect');
+    // summaryTotalScore는 p 태그 내의 span이므로, 직접 할당할 필요 없음.
 
-    // localStorage에서 마스터한 단어 로드 (initializeQuiz 내에서 초기화)
+    // 2. localStorage에서 마스터한 단어 로드
     masteredWords = JSON.parse(localStorage.getItem('masteredWords')) || [];
     console.log("로컬 저장소의 마스터 단어:", masteredWords);
 
-    // Day 선택기 설정 및 첫 Day의 학습 뷰 표시
-    setupDaySelector(); // <-- 이 함수도 initializeQuiz 내에서 호출되도록 함
-    updateProgressDisplay(); // 초기 진행률 표시
+    // 3. 퀴즈 데이터 로드 (GitHub에서 fetch)
+    try {
+        console.log("GitHub에서 퀴즈 데이터 로드 시도...");
+        const response = await fetch(GITHUB_PAGES_BASE_URL + 'data/flashcard_data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+        quizAllWordsData = await response.json();
+        console.log("퀴즈 데이터 로드 완료. 총 단어 수:", quizAllWordsData.length);
 
-    // 이벤트 리스너들은 initializeQuiz() 내에서 한 번만 할당
+    } catch (error) {
+        console.error("퀴즈 데이터를 로드하는 중 오류 발생:", error);
+        quizProblemsArea.innerHTML = '<p class="loading-message" style="color: red;">퀴즈 데이터를 불러올 수 없습니다. 인터넷 연결 또는 파일 경로를 확인하세요: ' + error.message + '</p>';
+        // 오류 발생 시 버튼 비활성화 또는 숨김
+        submitQuizButton.style.display = 'none';
+        newQuizButton.style.display = 'none';
+        startQuizButton.style.display = 'none';
+        return; // 데이터 로드 실패 시 이후 로직 실행 중단
+    }
+
+    // 4. Day 선택기 설정 및 초기 Day 설정
+    setupDaySelector(); // 모든 Day 목록을 채우고 currentDay를 설정
+    updateProgressDisplay(); // 초기 진행률 표시 업데이트
+
+    // 5. 초기 학습 화면 표시 (Day 1 또는 마지막 학습 Day)
+    // 이 줄이 있어야 페이지 로드 시 학습 화면이 자동으로 열립니다.
+    generateAndDisplayStudyView(currentDay); 
+
+    // 6. UI 이벤트 리스너 등록 (모든 UI 요소와 데이터가 준비된 후에)
     daySelector.addEventListener('change', (event) => {
         currentDay = event.target.value;
         localStorage.setItem('lastViewedDay', currentDay);
@@ -966,7 +888,7 @@ function initializeQuiz() {
         if (currentIndex > 0) {
             currentDay = allDays[currentIndex - 1];
             daySelector.value = currentDay;
-            daySelector.dispatchEvent(new Event('change'));
+            daySelector.dispatchEvent(new Event('change')); // change 이벤트를 발생시켜 화면 업데이트
         }
     });
 
@@ -975,18 +897,15 @@ function initializeQuiz() {
         if (currentIndex < allDays.length - 1) {
             currentDay = allDays[currentIndex + 1];
             daySelector.value = currentDay;
-            daySelector.dispatchEvent(new Event('change'));
+            daySelector.dispatchEvent(new Event('change')); // change 이벤트를 발생시켜 화면 업데이트
         }
-    });
-
-    newQuizButton.addEventListener('click', () => {
-        generateAndDisplayQuiz();
     });
 
     startQuizButton.addEventListener('click', () => {
         generateAndDisplayQuiz();
     });
-
+    
+    // 채점 및 피드백 로직을 담당하는 submitQuizButton 이벤트 리스너
     submitQuizButton.addEventListener('click', () => {
         currentQuizSessionScore.correct = 0;
         let totalAnsweredCount = 0;
@@ -997,6 +916,7 @@ function initializeQuiz() {
             const quizItemElement = problem.element;
             let userAnswer;
 
+            // 사용자 답변 결정 로직
             if (problem.type === 'vowel-fill-in-blank') {
                 const blanksArea = quizItemElement.querySelector('.vowelscramble-word-area');
                 const reconstructedWord = Array.from(blanksArea.querySelectorAll('.vowelscramble-char')).map(span => {
@@ -1012,20 +932,19 @@ function initializeQuiz() {
             const feedbackDiv = quizItemElement.querySelector('.quiz-feedback');
             const answerDetailsDiv = quizItemElement.querySelector('.quiz-answer-details');
             const optionButtons = quizItemElement.querySelectorAll('.option-button');
-
             const questionNumberDiv = quizItemElement.querySelector('.quiz-question-number');
 
+            // UI 초기화
             if (problem.type !== 'vowel-fill-in-blank') {
                 optionButtons.forEach(btn => {
                     btn.classList.remove('correct', 'incorrect');
                 });
             }
-
             feedbackDiv.style.display = 'block';
-            answerDetailsDiv.style.display = 'none';
-
+            answerDetailsDiv.style.display = 'none'; // 기본적으로 숨김
             questionNumberDiv.classList.remove('question-correct', 'question-incorrect');
 
+            // 정답 확인 및 피드백
             if (userAnswer === undefined || userAnswer === '' || (problem.type === 'vowel-fill-in-blank' && userAnswer.length !== correctAnswer.length)) {
                 hasUnansweredQuestions = true;
                 feedbackDiv.textContent = '아직 답을 선택하지 않았거나, 단어가 완성되지 않았습니다. 🤔';
@@ -1067,67 +986,43 @@ function initializeQuiz() {
                     problem.result = 'incorrect';
                 }
             }
-        }
-    );
+        });
 
-    const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-    document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
+        const finalScorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
+        document.getElementById('current-score').textContent = `${currentQuizSessionScore.correct}개 (${finalScorePercentage.toFixed(0)}점)`;
 
-    if (hasUnansweredQuestions) {
-        alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
-        submitQuizButton.style.display = 'inline-block';
-        newQuizButton.style.display = 'none';
-    } else {
-        submitQuizButton.style.display = 'none';
-        newQuizButton.style.display = 'inline-block';
+        if (hasUnansweredQuestions) {
+            alert(`총 ${currentQuizProblems.length} 문제 중 ${currentQuizProblems.length - totalAnsweredCount} 문제를 아직 선택하지 않았거나, 단어가 완성되지 않았습니다.`);
+            submitQuizButton.style.display = 'inline-block';
+            newQuizButton.style.display = 'none';
+        } else {
+            submitQuizButton.style.display = 'none';
+            newQuizButton.style.display = 'inline-block';
 
-        if (currentQuizSessionScore.total > 0) {
-            const scorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
-            if (scorePercentage >= 80) {
-                fanfareAudio.currentTime = 0;
-                fanfareAudio.play().catch(e => console.error("Fanfare audio playback failed:", e));
+            if (currentQuizSessionScore.total > 0) {
+                const scorePercentage = (currentQuizSessionScore.correct / currentQuizSessionScore.total) * 100;
+                if (scorePercentage >= 80) {
+                    fanfareAudio.currentTime = 0;
+                    fanfareAudio.play().catch(e => console.error("Fanfare audio playback failed:", e));
+                }
             }
+            showScoreReportModal();
         }
-        showScoreReportModal();
-    }
-    updateProgressDisplay();
-}
+        updateProgressDisplay();
+    });
 
+    newQuizButton.addEventListener('click', () => {
+        generateAndDisplayQuiz();
+    });
 
-// --- 퀴즈 데이터 로드 함수 (initializeQuiz()를 호출함) ---
-async function loadQuizData() {
-    try {
-        console.log("퀴즈 데이터 로드 시작...");
-        const response = await fetch(GITHUB_PAGES_BASE_URL + 'data/flashcard_data.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        quizAllWordsData = await response.json();
-        console.log("퀴즈 데이터 로드 완료:", quizAllWordsData);
+    startQuizButton.addEventListener('click', () => {
+        generateAndDisplayQuiz();
+    });
+}); // DOMContentLoaded 끝
 
-        // 데이터 로드 후 퀴즈 초기화
-        initializeQuiz();
-
-        // 초기 로딩 메시지 숨기기 (또는 퀴즈 문제 영역에 데이터 준비 완료 메시지 표시)
-        document.getElementById('quiz-problems-area').innerHTML = '<p class="loading-message">준비 완료! "오늘의 퀴즈 시작" 버튼을 눌러 퀴즈를 시작하세요.</p>';
-        document.getElementById('start-quiz-button').style.display = 'inline-block'; // 퀴즈 시작 버튼 보이기
-
-    } catch (error) {
-        console.error("퀴즈 데이터를 로드하는 중 오류 발생:", error);
-        document.getElementById('quiz-problems-area').innerHTML = '<p class="loading-message" style="color: red;">퀴즈 데이터를 불러올 수 없습니다. 인터넷 연결 또는 파일 경로를 확인하세요: ' + error.message + '</p>';
-    }
-}
-
-
-// --- DOMContentLoaded 이벤트 리스너: 페이지 로드 시 데이터 로드 시작 ---
-document.addEventListener('DOMContentLoaded', () => {
-    // DOMContentLoaded 시점에 loadQuizData를 호출하여 비동기 데이터 로딩 시작
-    loadQuizData();
-});
-
-// 나머지 함수들은 이 스코프 내부에 정의되어야 함
-// --- Day 선택기 설정 및 채우기 (initializeQuiz()에서 호출됨) ---
-const setupDaySelector = () => {
+// --- Day 선택기 설정 및 채우기 함수 ---
+// DOMContentLoaded 범위 내에 정의해야 합니다.
+function setupDaySelector() {
     allDays = [...new Set(quizAllWordsData.map(word => word.day))].sort((a, b) => parseInt(a) - parseInt(b));
     daySelector.innerHTML = '';
     allDays.forEach(day => {
@@ -1143,30 +1038,27 @@ const setupDaySelector = () => {
     if (dayFromUrl && allDays.includes(dayFromUrl)) {
         currentDay = dayFromUrl;
     } else {
-        currentDay = localStorage.getItem('lastViewedDay') || allDays[0];
-        if (!allDays.includes(currentDay) && allDays.length > 0) { // allDays가 비어있지 않은 경우에만 첫 Day로 설정
+        currentDay = localStorage.getItem('lastViewedDay') || (allDays.length > 0 ? allDays[0] : '1');
+        if (!allDays.includes(currentDay) && allDays.length > 0) {
             currentDay = allDays[0];
-        } else if (allDays.length === 0) { // 데이터가 없는 경우를 처리
-            currentDay = '1'; // 기본값 또는 오류 처리
+        } else if (allDays.length === 0) {
+            currentDay = '1';
             console.warn("Day 데이터가 없습니다. 기본 Day 1로 설정합니다.");
         }
     }
     daySelector.value = currentDay;
     currentDayDisplay.textContent = `Day ${currentDay}`;
     localStorage.setItem('lastViewedDay', currentDay);
-
-    generateAndDisplayStudyView(currentDay);
-    // updateProgressDisplay(); // initializeQuiz()에서 이미 호출되므로 중복 호출 방지
-    window.history.pushState({ day: currentDay }, `Day ${currentDay} 영단어 퀴즈`, `?day=${currentDay}`);
-};
-
+    // generateAndDisplayStudyView와 updateProgressDisplay는 DOMContentLoaded에서 한 번만 호출됨
+}
 
 // --- 학습/복습 뷰 생성 함수 ---
+// DOMContentLoaded 범위 내에 정의해야 합니다.
 function generateAndDisplayStudyView(dayToDisplay) {
     quizProblemsArea.innerHTML = '<p class="loading-message">단어 학습 목록을 불러오는 중...</p>';
-    submitQuizButton.style.display = 'none';
-    newQuizButton.style.display = 'none';
-    // startQuizButton.style.display = 'inline-block'; // initializeQuiz에서 제어 (이미 제어됨)
+    submitQuizButton.style.display = 'none'; // 퀴즈 제출 버튼 숨김
+    newQuizButton.style.display = 'none'; // 새로운 퀴즈 버튼 숨김
+    startQuizButton.style.display = 'inline-block'; // 학습 시작 버튼 표시
 
     const wordsForThisDay = quizAllWordsData.filter(wordData => parseInt(wordData.day) === parseInt(dayToDisplay));
     const wordsToStudy = wordsForThisDay.filter(wordData =>
@@ -1179,7 +1071,7 @@ function generateAndDisplayStudyView(dayToDisplay) {
         return;
     }
 
-    quizProblemsArea.innerHTML = '';
+    quizProblemsArea.innerHTML = ''; // 로딩 메시지 제거
 
     wordsToStudy.forEach((wordData, index) => {
         const studyItemDiv = document.createElement('div');
@@ -1194,7 +1086,7 @@ function generateAndDisplayStudyView(dayToDisplay) {
                 <button class="listen-button" onclick="speakText('${wordData.meaning}', 'ko-KR')">🔊</button>
                 ${wordData.word_kk_audio_url ? `<button class="listen-button" onclick="playMp3Audio('${wordData.word_kk_audio_url}')">🎧</button>` : ''}
             </div>
-            ${wordData.image_url ? `<img src="${GITHUB_PAGES_BASE_URL + wordData.image_url}" alt="${wordData.word}" class="item-image">` : ''}
+            ${wordData.image_url ? `<img src="${wordData.image_url}" alt="${wordData.word}" class="item-image" style="width:100px; height:auto;">` : ''}
             <div class="quiz-example">예문: ${wordData.eng_example} (${wordData.kor_example})
                 <button class="listen-button" onclick="speakText('${wordData.eng_example}', 'en-US')">🔊</button>
                 ${wordData.eng_example_audio_url ? `<button class="listen-button" onclick="playMp3Audio('${wordData.eng_example_audio_url}')">🎧</button>` : ''}
